@@ -1,0 +1,46 @@
+\documentclass[14pt, a4paper]{extarticle}
+\usepackage{mospolytech_coursework}
+
+% Определение данных
+\newcommand{\theme}{%
+    Разработка интерактивного веб-приложения для мониторинга
+    и управления ирригацией плантаций
+    на основе имитационной модели%
+}
+
+\newcommand{\subject}{Разработка веб-приложений}
+\newcommand{\student}{Мясников Дмитрий Сергеевич}
+\newcommand{\group}{241-327}
+\newcommand{\teacher}{Кружалов Алексей Сергеевич}
+
+\begin{document}
+
+% Титульный лист
+    \include{title}
+
+% Задание
+    \includepdf[pages=-]{task.pdf}
+
+% Содержание
+    \tableofcontents
+
+% Введение
+    \include{intro}
+
+% Основная часть
+    \include{chapter1}
+    \include{chapter2}
+    \include{chapter3}
+
+% Заключение
+    \include{conclusion}
+
+% Список литературы
+    \bibliographystyle{ugost2003} % ГОСТ 7.1-2003
+    \nocite{*}
+    \bibliography{refs}
+
+% Приложения (при необходимости)
+% \include{appendix}
+
+\end{document}

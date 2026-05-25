@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #10b981;
+  --primary-dark: #059669;
+  --bg: #f4f7f6;
+  --surface: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --danger: #ef4444;
+  --dirt: #8b5a2b; /* Цвет земли */
+  --radius: 16px;
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+body { color: var(--text-main); line-height: 1.5; background-color: var(--bg); }
+.app { max-width: 1100px; margin: 0 auto; padding: 0 20px 60px; }
+
+/* Навигация */
+.navbar { display: flex; gap: 8px; padding: 24px 0; margin-bottom: 32px; border-bottom: 1px solid var(--border); align-items: center; }
+.navbar button { background: transparent; border: none; color: var(--text-muted); font-size: 15px; font-weight: 500; cursor: pointer; padding: 10px 16px; border-radius: 10px; transition: all 0.2s ease; }
+.navbar button:hover { color: var(--text-main); background: #e5e7eb; }
+.navbar button.active { background: #d1fae5; color: var(--primary-dark); font-weight: 600; }
+.navbar .spacer { flex: 1; }
+.user-badge { background: var(--surface); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; box-shadow: var(--shadow-md); display: flex; gap: 6px; }
+.user-badge span { color: var(--text-muted); font-weight: 400; }
+.logout-btn { color: var(--danger) !important; }
+
+/* Сетка для карточек */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+/* Формы */
+h1 { font-size: 32px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.02em; }
+.form-row { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+input, select { padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 15px; background: var(--surface); transition: all 0.2s; outline: none; }
+input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); }
+button.primary { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+button.primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3); }
+button.primary:disabled { opacity: 0.7; transform: none; cursor: not-allowed; }
+button.danger { background: #fee2e2; color: #dc2626; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+button.danger:hover { background: #dc2626; color: white; }
+
+/* Общая карточка */
+.card { background: var(--surface); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-md); position: relative; transition: 0.3s; }
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+/* Карточка Сектора (Стилизация под землю/поле) */
+.field-card { border-bottom: 8px solid var(--dirt); background: linear-gradient(180deg, #ffffff 0%, #f4fbfa 100%); overflow: hidden; }
+.field-card::after { content: '🌾'; position: absolute; bottom: 15px; right: 20px; font-size: 32px; opacity: 0.15; pointer-events: none; }
+.card-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.card-row strong { font-size: 20px; font-weight: 700; display: block; }
+.stats { color: var(--text-muted); font-size: 13px; margin-top: 4px; display: block; }
+
+/* Бейджи */
+.badges-container { display: flex; gap: 8px; margin-bottom: 16px; }
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge.normal { background: #d1fae5; color: var(--primary-dark); }
+.badge.overwatered { background: #dbeafe; color: #1d4ed8; }
+
+/* Прогресс бар влажности */
+.moisture-bar { height: 14px; background: #e5e7eb; border-radius: 12px; overflow: hidden; margin: 16px 0 8px; border: inset 1px rgba(0,0,0,0.1); }
+.moisture-bar-fill { height: 100%; background: linear-gradient(90deg, #34d399, #3b82f6); border-radius: 12px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* АНИМАЦИИ */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+
+@keyframes plantBounce { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.1) rotate(5deg); } }
+.plant-emoji { display: inline-block; animation: plantBounce 4s ease-in-out infinite; font-size: 72px; text-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+.health-display.watering .plant-emoji { animation: plantBounce 0.4s ease-in-out infinite; }
+
+@keyframes rainDrop { 0% { transform: translateY(-50px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(80px); opacity: 0; } }
+.rain-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; justify-content: space-around; padding: 0 20%; z-index: 10; overflow: hidden; border-radius: 16px;}
+.drop { width: 4px; height: 20px; background: #3b82f6; border-radius: 10px; animation: rainDrop 0.5s linear infinite; }
+.drop:nth-child(1) { animation-delay: 0.1s; } .drop:nth-child(2) { animation-delay: 0.3s; }
+.drop:nth-child(3) { animation-delay: 0.0s; } .drop:nth-child(4) { animation-delay: 0.2s; }
+.drop:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes tiltCan {
+  0% { transform: rotate(0deg) translate(40px, -20px); opacity: 0; }
+  10% { transform: rotate(-35deg) translate(0, 0); opacity: 1; }
+  90% { transform: rotate(-35deg) translate(0, 0); opacity: 1; }
+  100% { transform: rotate(0deg) translate(40px, -20px); opacity: 0; }
+}
+
+.watering-can-anim {
+  position: absolute;
+  top: 10px;
+  right: 25%;
+  z-index: 20;
+  animation: tiltCan 1.5s ease-in-out forwards;
+  color: var(--primary);
+}
+
+.health-display { position: relative; text-align: center; padding: 40px 20px; background: #f8fafc; border-radius: 16px; margin-bottom: 24px; border: 2px dashed #cbd5e1; transition: 0.3s; }
+.health-display.watering { background: #f0fdf4; border-color: var(--primary); }
+.health-text { font-size: 16px; font-weight: 700; color: var(--text-main); margin-top: 16px; position: relative; z-index: 2;}
+
+.error { color: #b91c1c; background: #fef2f2; padding: 16px; border-radius: 12px; margin-bottom: 20px; font-weight: 600; border: 1px solid #fecaca; }
+
+/* notification badge in navbar */
+.notif-badge {
+  background: #ef4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+
+/* report grid */
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+.report-item {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.report-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.report-label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* telemetry table */
+.telem-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.telem-table th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border);
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.telem-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.telem-table tr:hover td {
+  background: #f8fafc;
+}
+
+/* drought badge */
+.badge.drought {
+  background: #fef3c7;
+  color: #92400e;
+}

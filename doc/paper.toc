@@ -1,0 +1,67 @@
+\babel@toc {russian}{}\relax 
+\contentsline {section}{\MakeUppercase []{Введение}}{6}{Doc-Start}%
+\contentsline {section}{\MakeUppercase []{Глава 1. Анализ предметной области}}{8}{Doc-Start}%
+\contentsline {subsection}{\numberline {1.1}Обзор систем имитационного моделирования и управления ирригацией}{8}{subsection.1.1}%
+\contentsline {subsubsection}{\numberline {1.1.1}Профессиональные агрономические симуляторы}{8}{subsubsection.1.1.1}%
+\contentsline {subsubsection}{\numberline {1.1.2}Коммерческие IoT-платформы как контекст для симуляции}{9}{subsubsection.1.1.2}%
+\contentsline {subsubsection}{\numberline {1.1.3}<<Серьёзные игры>> и фермерские симуляторы}{10}{subsubsection.1.1.3}%
+\contentsline {subsubsection}{\numberline {1.1.4}Сводный сравнительный анализ}{11}{subsubsection.1.1.4}%
+\contentsline {subsection}{\numberline {1.2}Анализ программных инструментов разработки}{12}{subsection.1.2}%
+\contentsline {subsubsection}{\numberline {1.2.1}Серверная платформа и движок симуляции}{12}{subsubsection.1.2.1}%
+\contentsline {subsubsection}{\numberline {1.2.2}Обмен данными в реальном времени}{13}{subsubsection.1.2.2}%
+\contentsline {subsubsection}{\numberline {1.2.3}Клиентский фреймворк}{13}{subsubsection.1.2.3}%
+\contentsline {subsubsection}{\numberline {1.2.4}База данных и объектно-реляционное отображение}{13}{subsubsection.1.2.4}%
+\contentsline {subsubsection}{\numberline {1.2.5}Безопасность и ролевая модель}{14}{subsubsection.1.2.5}%
+\contentsline {subsubsection}{\numberline {1.2.6}Контейнеризация}{14}{subsubsection.1.2.6}%
+\contentsline {subsection}{\numberline {1.3}Формулировка цели и задач работы}{14}{subsection.1.3}%
+\contentsline {section}{\MakeUppercase []{Глава 2. Проектирование веб-приложения}}{16}{Item.7}%
+\contentsline {subsection}{\numberline {2.1}Анализ целевой аудитории}{16}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Описание функциональности приложения}{16}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Проектирование математической модели симуляции}{18}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Подсистема генерации погоды}{18}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Подсистема расчёта эвапотранспирации}{18}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}Подсистема водного баланса почвы}{20}{subsubsection.2.3.3}%
+\contentsline {subsubsection}{\numberline {2.3.4}Подсистема фенологии растений}{21}{subsubsection.2.3.4}%
+\contentsline {subsubsection}{\numberline {2.3.5}Подсистема индекса здоровья растений}{22}{subsubsection.2.3.5}%
+\contentsline {subsubsection}{\numberline {2.3.6}Подсистема случайных событий (Монте-Карло)}{24}{subsubsection.2.3.6}%
+\contentsline {subsection}{\numberline {2.4}Проектирование механик геймификации}{24}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Проектирование архитектуры движка симуляции}{25}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Проектирование модели данных}{26}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}Разработка макетов страниц}{29}{subsection.2.7}%
+\contentsline {subsubsection}{\numberline {2.7.1}Дашборд стажёра-оператора}{29}{subsubsection.2.7.1}%
+\contentsline {subsubsection}{\numberline {2.7.2}Дашборд агронома-наставника}{29}{subsubsection.2.7.2}%
+\contentsline {subsubsection}{\numberline {2.7.3}Экран управления поливом}{30}{subsubsection.2.7.3}%
+\contentsline {section}{\MakeUppercase []{Глава 3. Разработка веб-приложения}}{32}{figure.caption.8}%
+\contentsline {subsection}{\numberline {3.1}Организация структуры проекта и контейнеризация}{32}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Реализация базы данных и миграций}{33}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Реализация серверного API и маршрутизации}{34}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Реализация аутентификации и ролевой модели доступа}{37}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Реализация движка имитационной модели}{38}{subsection.3.5}%
+\contentsline {subsubsection}{\numberline {3.5.1}Конвейер подсистем}{38}{subsubsection.3.5.1}%
+\contentsline {subsubsection}{\numberline {3.5.2}Реализация фенологических переходов}{39}{subsubsection.3.5.2}%
+\contentsline {subsubsection}{\numberline {3.5.3}Реализация расчёта индекса здоровья}{40}{subsubsection.3.5.3}%
+\contentsline {subsubsection}{\numberline {3.5.4}Реализация автомата состояний}{40}{subsubsection.3.5.4}%
+\contentsline {subsection}{\numberline {3.6}Реализация обмена данными в реальном времени}{41}{subsection.3.6}%
+\contentsline {subsubsection}{\numberline {3.6.1}Серверный WebSocket-хаб}{41}{subsubsection.3.6.1}%
+\contentsline {subsubsection}{\numberline {3.6.2}Клиентское WebSocket-подключение}{42}{subsubsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.7}Реализация клиентского приложения}{43}{subsection.3.7}%
+\contentsline {subsection}{\numberline {3.8}Реализация геймифицированного интерфейса}{44}{subsection.3.8}%
+\contentsline {subsubsection}{\numberline {3.8.1}Визуализация растения}{44}{subsubsection.3.8.1}%
+\contentsline {subsubsection}{\numberline {3.8.2}Кольцевой индикатор здоровья}{45}{subsubsection.3.8.2}%
+\contentsline {subsubsection}{\numberline {3.8.3}Графики телеметрии}{45}{subsubsection.3.8.3}%
+\contentsline {subsubsection}{\numberline {3.8.4}Система уведомлений и обратная связь}{45}{subsubsection.3.8.4}%
+\contentsline {subsubsection}{\numberline {3.8.5}Прогресс-бары и лимиты}{46}{subsubsection.3.8.5}%
+\contentsline {subsection}{\numberline {3.9}Реализация управления поливом}{46}{subsection.3.9}%
+\contentsline {subsubsection}{\numberline {3.9.1}Серверная обработка полива}{46}{subsubsection.3.9.1}%
+\contentsline {subsubsection}{\numberline {3.9.2}Клиентский интерфейс полива}{47}{subsubsection.3.9.2}%
+\contentsline {subsection}{\numberline {3.10}Реализация импорта и экспорта данных}{47}{subsection.3.10}%
+\contentsline {subsubsection}{\numberline {3.10.1}Экспорт в CSV}{47}{subsubsection.3.10.1}%
+\contentsline {subsubsection}{\numberline {3.10.2}Импорт из CSV}{48}{subsubsection.3.10.2}%
+\contentsline {subsection}{\numberline {3.11}Генерация начальных данных и тестирование}{48}{subsection.3.11}%
+\contentsline {subsubsection}{\numberline {3.11.1}Автоматическая генерация тестовых данных}{48}{subsubsection.3.11.1}%
+\contentsline {subsubsection}{\numberline {3.11.2}Функциональное тестирование}{49}{subsubsection.3.11.2}%
+\contentsline {section}{\MakeUppercase []{Заключение}}{51}{Item.46}%
+\babel@toc {russian}{}\relax 
+\babel@toc {russian}{}\relax 
+\babel@toc {russian}{}\relax 
+\babel@toc {russian}{}\relax 

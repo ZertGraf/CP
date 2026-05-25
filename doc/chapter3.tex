@@ -1,0 +1,824 @@
+\section*{Глава 3. Разработка веб-приложения}
+\addcontentsline{toc}{section}{Глава 3. Разработка веб-приложения}
+\stepcounter{section}
+
+
+\subsection{Организация структуры проекта и контейнеризация}
+
+Проект организован в виде монорепозитория, содержащего три
+независимых компонента: серверное API на Go (\texttt{plantation-api}),
+клиентское приложение на React (\texttt{plantation-front}) и
+конфигурацию оркестрации Docker~Compose. Такая структура
+позволяет вести параллельную разработку серверной и клиентской
+частей, сохраняя единую точку развёртывания.
+
+\begin{lstlisting}[caption={Файловая структура проекта}, label={lst:project_tree}]
+plantation/
+  docker-compose.yml
+  plantation-api/
+    cmd/api/main.go
+    internal/
+      handler/     (auth, sector, plant, watering, ...)
+      middleware/   (auth.go)
+      model/        (models.go)
+      simulation/   (engine.go)
+      storage/      (postgres.go, seed.go)
+      ws/           (hub.go)
+    migrations/     (001_init.sql, 002_simulation.sql)
+    Dockerfile
+    go.mod
+  plantation-front/
+    src/
+      pages/        (Dashboard, Sectors, Plants, ...)
+      components/   (Shell, visuals, icons)
+      api.js
+      App.jsx
+      main.jsx
+    package.json
+    index.html
+\end{lstlisting}
+
+Развёртывание реализовано с использованием
+Docker~Compose~\cite{docker_compose_docs,docker_compose_file_reference},
+объединяющего три сервиса. Сервис \texttt{db} использует образ
+\texttt{postgres:16-alpine}, автоматически исполняя SQL-миграции
+из каталога \texttt{migrations} при первом запуске через
+механизм \texttt{docker-entrypoint-initdb.d}.
+Сервис \texttt{api} собирается из многоступенчатого
+Dockerfile~\cite{docker_multistage_docs} (листинг~\ref{lst:dockerfile}),
+что позволяет отделить среду компиляции (образ \texttt{golang:1.23-alpine})
+от финального образа (\texttt{alpine:3.20}), сокращая размер
+контейнера до $\approx$\,20~МБ. Сервис \texttt{front} собирает
+и раздаёт статику через Vite~\cite{vite_official}.
+
+\begin{lstlisting}[caption={Многоступенчатая сборка API-сервера (Dockerfile)}, label={lst:dockerfile}]
+FROM golang:1.23-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o /bin/api ./cmd/api
+
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates
+COPY --from=builder /bin/api /bin/api
+EXPOSE 8080
+CMD ["/bin/api"]
+\end{lstlisting}
+
+Зависимости между сервисами задаются директивой
+\texttt{depends\_on} с условием \texttt{service\_healthy}:
+API-сервер стартует только после прохождения healthcheck
+базы данных (\texttt{pg\_isready}), что исключает сбои
+при подключении к СУБД.
+
+
+\subsection{Реализация базы данных и миграций}
+
+Структура базы данных реализована посредством двух SQL-миграций,
+исполняемых PostgreSQL~16~\cite{postgresql_official,postgresql_16_release_notes}
+при инициализации контейнера. Первая миграция
+(\texttt{001\_init.sql}) создаёт основные таблицы: пользователей
+с перечислимым типом роли (\texttt{user\_role}), секторов
+плантации, растений и журнала полива. Вторая миграция
+(\texttt{002\_simulation.sql}) добавляет таблицы телеметрии
+и уведомлений, а также расширяет таблицу секторов полями
+для суточного лимита воды.
+
+\begin{lstlisting}[caption={Создание таблицы секторов (фрагмент 001\_init.sql)}, label={lst:sql_sectors}]
+CREATE TABLE sectors (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name            VARCHAR(255) NOT NULL,
+  area_sqm        FLOAT NOT NULL DEFAULT 0,
+  soil_moisture   FLOAT NOT NULL DEFAULT 50,
+  temperature     FLOAT NOT NULL DEFAULT 25,
+  health_index    FLOAT NOT NULL DEFAULT 1.0,
+  gdd_cumulative  FLOAT NOT NULL DEFAULT 0,
+  phenophase      VARCHAR(10) NOT NULL DEFAULT '00',
+  ks_water        FLOAT NOT NULL DEFAULT 1.0,
+  ks_aeration     FLOAT NOT NULL DEFAULT 1.0,
+  deficit_dr      FLOAT NOT NULL DEFAULT 0,
+  status          VARCHAR(50) NOT NULL DEFAULT 'normal',
+  operator_id     UUID REFERENCES users(id) ON DELETE SET NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+\end{lstlisting}
+
+Таблица телеметрии индексирована составным индексом
+(\texttt{sector\_id}, \texttt{recorded\_at~DESC}), что
+обеспечивает эффективную выборку временных рядов для
+построения графиков в интерфейсе.
+
+Взаимодействие с базой данных реализовано через ORM-библиотеку
+Bun~\cite{bun_uptrace_official,bun_github}. Модели данных
+описаны в пакете \texttt{internal/model} с использованием
+тегов \texttt{bun:} для маппинга полей Go-структур на столбцы
+PostgreSQL. Пакет \texttt{internal/storage} содержит методы
+хранилища с типобезопасными fluent-запросами
+(листинг~\ref{lst:storage_sample}).
+
+\begin{lstlisting}[caption={Пример метода хранилища (выборка телеметрии)}, label={lst:storage_sample}]
+func (s *Storage) ListTelemetry(
+    ctx context.Context, sectorID string, limit int,
+) ([]model.Telemetry, error) {
+    var rows []model.Telemetry
+    q := s.DB.NewSelect().
+        Model(&rows).
+        Order("recorded_at DESC").
+        Limit(limit)
+    if sectorID != "" {
+        q = q.Where("sector_id = ?", sectorID)
+    }
+    err := q.Scan(ctx)
+    return rows, err
+}
+\end{lstlisting}
+
+
+\subsection{Реализация серверного API и маршрутизации}
+
+Серверная часть реализована на языке Go~1.23~\cite{go_dev_official,effective_go}
+с использованием маршрутизатора go-chi~\cite{go_chi_github,go_chi_pkgdev}.
+Точка входа (\texttt{cmd/api/main.go}) выполняет инициализацию
+хранилища, создание WebSocket-хаба, запуск движка симуляции
+и конфигурацию HTTP-маршрутов.
+
+Маршруты разделены на три группы:
+\begin{enumerate}
+    \item \textbf{Публичные} --- регистрация и аутентификация
+    (\texttt{POST /api/auth/register}, \texttt{POST /api/auth/login}).
+    \item \textbf{Защищённые} (требуют JWT-токен) --- чтение
+    секторов, растений, телеметрии, уведомлений и отчётов.
+    \item \textbf{Административные} (только для роли
+    \texttt{agronomist}) --- создание, изменение и удаление
+    секторов, назначение операторов, импорт/экспорт CSV.
+\end{enumerate}
+
+\begin{lstlisting}[caption={Конфигурация защищённых маршрутов (main.go)}, label={lst:routes}]
+r.Group(func(r chi.Router) {
+    r.Use(middleware.Auth(secret))
+
+    r.Get("/api/sectors", sectorH.List)
+    r.Get("/api/sectors/{id}", sectorH.Get)
+    r.Get("/api/sectors/my", sectorH.ListMy)
+
+    // agronomist only
+    r.Group(func(r chi.Router) {
+        r.Use(middleware.RequireRole("agronomist"))
+        r.Post("/api/sectors", sectorH.Create)
+        r.Put("/api/sectors/{id}", sectorH.Update)
+        r.Delete("/api/sectors/{id}", sectorH.Delete)
+        r.Put("/api/sectors/{id}/assign", sectorH.Assign)
+        r.Get("/api/export/sectors", fileH.ExportSectors)
+        r.Post("/api/import/sectors", fileH.ImportSectors)
+    })
+
+    r.Post("/api/water", waterH.Water)
+    r.Get("/api/telemetry/{sectorId}", reportH.Telemetry)
+    r.Get("/api/reports/{sectorId}", reportH.Summary)
+    r.Get("/api/notifications", notifH.List)
+})
+\end{lstlisting}
+
+В таблице~\ref{tab:api_endpoints} приведён полный перечень
+API-эндпоинтов с указанием HTTP-метода, пути, требуемой роли
+и назначения.
+
+\begin{longtable}{|l|l|l|p{4.8cm}|}
+    \caption{Перечень REST API-эндпоинтов} \label{tab:api_endpoints} \\
+
+    \hline
+    \textbf{Метод} & \textbf{Путь} & \textbf{Роль} & \textbf{Назначение} \\ \hline
+    \endfirsthead
+
+    \tabcont{\ref{tab:api_endpoints}}
+    \textbf{Метод} & \textbf{Путь} & \textbf{Роль} & \textbf{Назначение} \\ \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    POST & /api/auth/register & --- & Регистрация пользователя \\ \hline
+    POST & /api/auth/login    & --- & Аутентификация, выдача JWT \\ \hline
+    GET  & /api/sectors       & любая & Список секторов \\ \hline
+    GET  & /api/sectors/\{id\}  & любая & Детали сектора \\ \hline
+    GET  & /api/sectors/my    & любая & Секторы текущего оператора \\ \hline
+    POST & /api/sectors       & agro  & Создание сектора \\ \hline
+    PUT  & /api/sectors/\{id\}  & agro  & Обновление сектора \\ \hline
+    DELETE & /api/sectors/\{id\} & agro & Удаление сектора \\ \hline
+    PUT  & /api/sectors/\{id\}/assign & agro & Назначение оператора \\ \hline
+    DELETE & /api/sectors/\{id\}/assign & agro & Снятие оператора \\ \hline
+    GET  & /api/plants        & любая & Список растений \\ \hline
+    POST & /api/plants        & любая & Добавление растения \\ \hline
+    DELETE & /api/plants/\{id\} & любая & Удаление растения \\ \hline
+    POST & /api/water         & любая & Выполнение полива \\ \hline
+    GET  & /api/water/stats/\{id\} & любая & Статистика полива \\ \hline
+    GET  & /api/notifications & любая & Список уведомлений \\ \hline
+    PUT  & /api/notifications/\{id\}/read & любая & Пометить как прочитано \\ \hline
+    GET  & /api/telemetry/\{id\} & любая & Временной ряд телеметрии \\ \hline
+    GET  & /api/reports/\{id\} & любая & Агрегированный отчёт \\ \hline
+    GET  & /api/export/sectors & agro & Экспорт секторов в CSV \\ \hline
+    POST & /api/import/sectors & agro & Импорт секторов из CSV \\ \hline
+\end{longtable}
+
+CORS-политика настроена через middleware \texttt{go-chi/cors}
+и разрешает запросы с локальных адресов разработки,
+передачу заголовков \texttt{Authorization} и
+\texttt{Content-Type}, а также использование методов
+\texttt{GET}, \texttt{POST}, \texttt{PUT}, \texttt{DELETE}.
+
+
+\subsection{Реализация аутентификации и ролевой модели доступа}
+
+Модуль аутентификации реализован в соответствии с проектными
+решениями, описанными в подразделе~1.2.5. Пароли хешируются
+алгоритмом bcrypt~\cite{provos_mazieres_1999,pkggo_bcrypt} со
+стандартным коэффициентом стоимости (10 раундов). При успешной
+аутентификации сервер генерирует JWT-токен
+(RFC~7519)~\cite{rfc7519_ietf,jwt_io_intro} с подписью
+HMAC-SHA256, содержащий поля \texttt{sub} (UUID пользователя),
+\texttt{role} (\texttt{agronomist} или \texttt{operator}) и
+\texttt{exp} (срок действия --- 24~часа).
+
+Middleware-функция \texttt{Auth} (листинг~\ref{lst:auth_mw})
+перехватывает каждый запрос к защищённым маршрутам, извлекает
+токен из заголовка \texttt{Authorization: Bearer~<token>},
+верифицирует подпись и внедряет идентификатор и роль
+пользователя в контекст запроса Go~\cite{go_context_pkgdev}.
+
+\begin{lstlisting}[caption={Middleware аутентификации (middleware/auth.go)}, label={lst:auth_mw}]
+func Auth(secret string) func(http.Handler) http.Handler {
+    return func(next http.Handler) http.Handler {
+        return http.HandlerFunc(func(w http.ResponseWriter,
+            r *http.Request) {
+            header := r.Header.Get("Authorization")
+            if !strings.HasPrefix(header, "Bearer ") {
+                http.Error(w,
+                    `{"error":"unauthorized"}`,
+                    http.StatusUnauthorized)
+                return
+            }
+            tokenStr := strings.TrimPrefix(header, "Bearer ")
+            token, err := jwt.Parse(tokenStr,
+                func(t *jwt.Token) (any, error) {
+                    return []byte(secret), nil
+                })
+            if err != nil || !token.Valid {
+                http.Error(w,
+                    `{"error":"invalid token"}`,
+                    http.StatusUnauthorized)
+                return
+            }
+            claims := token.Claims.(jwt.MapClaims)
+            ctx := context.WithValue(r.Context(),
+                UserIDKey, claims["sub"].(string))
+            ctx = context.WithValue(ctx,
+                RoleKey, claims["role"].(string))
+            next.ServeHTTP(w, r.WithContext(ctx))
+        })
+    }
+}
+\end{lstlisting}
+
+Дополнительный middleware \texttt{RequireRole} принимает
+список допустимых ролей и возвращает HTTP~403 (Forbidden),
+если роль текущего пользователя не входит в разрешённый
+набор. Это обеспечивает защиту административных маршрутов
+(создание и удаление секторов, назначение операторов,
+импорт/экспорт) на уровне серверного API.
+
+
+\subsection{Реализация движка имитационной модели}
+
+Движок симуляции реализован в пакете \texttt{internal/simulation}
+и представляет собой тиковую архитектуру, описанную в
+подразделе~2.4. При старте сервера создаётся экземпляр
+\texttt{Engine}, запускающий горутину~\cite{effective_go} с
+периодическим таймером (\texttt{time.Ticker}) с интервалом
+10~секунд. На каждом тике движок извлекает из базы данных
+все секторы и последовательно обрабатывает каждый из них
+методом \texttt{simulateSector}.
+
+\subsubsection{Конвейер подсистем}
+
+Метод \texttt{simulateSector} реализует полный конвейер из
+восьми подсистем, описанных на рисунке~\ref{fig:tick_pipeline}:
+
+\begin{enumerate}
+    \item \textbf{WeatherTick} --- генерация погодных условий
+    через цепь Маркова первого порядка
+    (формула~(\ref{eq:markov_weather})). Вероятность влажного
+    дня определяется матрицей переходов: $P_{01} = 0{,}20$
+    (сухой $\to$ влажный), $P_{11} = 0{,}55$ (влажный $\to$
+    влажный). Осадки во влажный день моделируются обратным
+    преобразованием экспоненциального распределения.
+    \item \textbf{ET0Tick} --- расчёт эталонной эвапотранспирации
+    по уравнению Харгривса--Самани
+    (формула~(\ref{eq:hargreaves})).
+    \item \textbf{WaterBalanceTick} --- обновление дефицита
+    влаги по уравнению водного баланса
+    (формула~(\ref{eq:water_balance})). Объём полива $I(t)$
+    применяется непосредственно обработчиком API при действии
+    оператора; движок обрабатывает естественные процессы:
+    эффективные осадки $P_{eff}$, эвапотранспирацию $ET_c$
+    и глубинную перколяцию $DP$.
+    \item \textbf{PhenologyTick} --- накопление суммы
+    эффективных температур GDD
+    (формула~(\ref{eq:gdd})) и переключение фенофазы
+    по расширенной шкале BBCH~\cite{wei2013_litchi_bbch}.
+    \item \textbf{StressTick} --- расчёт коэффициентов
+    стресса: водного $K_s$ (формула~(\ref{eq:ks_stress})),
+    аэрационного $K_{s,aer}$
+    (формула~(\ref{eq:ks_aer})) и теплового $K_{s,T}$.
+    \item \textbf{HealthTick} --- обновление индекса здоровья
+    $H$ по формуле~(\ref{eq:health_index}).
+    \item \textbf{EventTick} --- стохастические события
+    методом Монте-Карло
+    (формула~(\ref{eq:event_probability})): нашествие
+    вредителей, аномальная жара, поломка оборудования.
+    \item \textbf{StatusTick} --- определение статуса
+    сектора по автомату состояний
+    (рисунок~\ref{fig:state_machine}).
+\end{enumerate}
+
+\subsubsection{Реализация фенологических переходов}
+
+Фенофазы описаны таблицей пороговых значений кумулятивных
+GDD с соответствующим базальным коэффициентом культуры
+$K_{cb}$ (листинг~\ref{lst:pheno_table}). При достижении
+порогового значения GDD код фенофазы автоматически
+обновляется, а коэффициент $K_{cb}$ используется в формуле
+дуального коэффициента культуры
+(формула~(\ref{eq:dual_kc})):
+
+\begin{equation}
+    ET_c = (K_s \cdot K_{cb}(\text{фенофаза}) + K_e) \cdot ET_0.
+    \label{eq:etc_impl}
+\end{equation}
+
+\begin{lstlisting}[caption={Таблица фенологических порогов (engine.go)}, label={lst:pheno_table}]
+var phenoPhases = []struct {
+    minGDD float64
+    code   string
+    kcb    float64
+}{
+    {0, "00", 0.45},     // dormancy
+    {150, "01", 0.55},   // bud break
+    {400, "03", 0.70},   // shoot development
+    {700, "05", 0.85},   // inflorescence emergence
+    {1000, "06", 0.95},  // flowering
+    {1500, "07", 1.00},  // fruit development
+    {2200, "08", 0.85},  // ripening
+}
+\end{lstlisting}
+
+\subsubsection{Реализация расчёта индекса здоровья}
+
+Индекс здоровья $H$ обновляется на каждом тике по
+формуле~(\ref{eq:health_index}). В
+листинге~\ref{lst:health_calc} представлен фрагмент
+реализации, в котором коэффициенты деградации
+$\alpha_{drought} = 0{,}03$, $\alpha_{flood} = 0{,}02$,
+$\alpha_{heat} = 0{,}01$ и коэффициент восстановления
+$\beta_{rec} = 0{,}05$ заданы как константы пакета.
+Восстановление активируется только при отсутствии всех
+видов стресса ($K_s > 0{,}9$, $K_{s,aer} > 0{,}9$,
+$K_{s,T} > 0{,}9$).
+
+\begin{lstlisting}[caption={Расчёт индекса здоровья (engine.go)}, label={lst:health_calc}]
+health := sec.HealthIndex
+deltaDrought := alphaDrought * (1.0 - sec.KsWater)
+deltaFlood   := alphaFlood * (1.0 - sec.KsAeration)
+deltaHeat    := alphaHeat * (1.0 - ksT)
+
+rec := 0.0
+if sec.KsWater > 0.9 && sec.KsAeration > 0.9 &&
+    ksT > 0.9 {
+    rec = betaRec * sec.KsWater *
+        sec.KsAeration * (1.0 - health)
+}
+
+health = health - deltaDrought - deltaFlood -
+    deltaHeat + rec
+health = math.Max(0, math.Min(1.0, health))
+sec.HealthIndex = health
+\end{lstlisting}
+
+\subsubsection{Реализация автомата состояний}
+
+Статус сектора определяется по приоритетной цепочке
+условий, соответствующей диаграмме состояний UML
+(рисунок~\ref{fig:state_machine}). Реализованы шесть
+состояний: \texttt{normal}, \texttt{drought},
+\texttt{overwatered}, \texttt{heat\_stress},
+\texttt{critical}, \texttt{recovering} и \texttt{dead}.
+Переход в состояние \texttt{recovering} активируется
+при восстановлении стрессовых коэффициентов до уровня
+$> 0{,}85$ при индексе здоровья в диапазоне [0{,}3; 0{,}7).
+Состояние \texttt{dead} фиксируется при падении индекса
+здоровья ниже 0{,}1 и генерирует уведомление о необходимости
+пересадки.
+
+
+\subsection{Реализация обмена данными в реальном времени}
+
+Полнодуплексная связь между сервером и клиентами реализована
+по протоколу WebSocket (RFC~6455)~\cite{rfc6455_ietf,mdn_websocket}
+с использованием библиотеки
+gorilla/websocket~\cite{gorilla_websocket_github,gorilla_websocket_pkgdev}.
+
+\subsubsection{Серверный WebSocket-хаб}
+
+Структура \texttt{Hub} (листинг~\ref{lst:ws_hub}) реализует
+паттерн <<publish-subscribe>>. Потокобезопасность обеспечивается
+мьютексом \texttt{sync.RWMutex}: запись в карту клиентов
+защищена эксклюзивной блокировкой, а широковещательная
+рассылка --- разделяемой. При подключении нового клиента
+горутина \texttt{ReadPump} поддерживает соединение живым,
+а при разрыве --- удаляет клиента из карты.
+
+\begin{lstlisting}[caption={WebSocket-хаб: широковещательная рассылка (ws/hub.go)}, label={lst:ws_hub}]
+func (h *Hub) Broadcast(event string, data any) {
+    msg, err := json.Marshal(map[string]any{
+        "event": event,
+        "data":  data,
+    })
+    if err != nil {
+        return
+    }
+    h.mu.RLock()
+    defer h.mu.RUnlock()
+    for conn := range h.clients {
+        if err := conn.WriteMessage(
+            websocket.TextMessage, msg); err != nil {
+            conn.Close()
+            delete(h.clients, conn)
+        }
+    }
+}
+\end{lstlisting}
+
+Движок симуляции вызывает \texttt{Hub.Broadcast} с двумя
+типами событий:
+\begin{itemize}
+    \item \texttt{sector:update} --- обновлённое состояние
+    сектора после каждого тика;
+    \item \texttt{notification} --- критическое уведомление
+    (засуха, переувлажнение, падение здоровья).
+\end{itemize}
+
+Обработчик полива дополнительно рассылает событие
+\texttt{sector:watered} с информацией о выполненном поливе.
+
+\subsubsection{Клиентское WebSocket-подключение}
+
+На стороне клиента функция \texttt{connectWS}
+(листинг~\ref{lst:ws_client}) устанавливает WebSocket-соединение
+с автоматическим переподключением через 3~секунды при обрыве.
+Протокол определяется динамически (\texttt{ws:} или
+\texttt{wss:}) в зависимости от протокола загрузки страницы.
+
+\begin{lstlisting}[caption={Клиентское WebSocket-подключение (api.js)}, label={lst:ws_client}]
+export function connectWS(onMessage, onStatus) {
+    let ws = null
+    let reconnectTimer = null
+    let closed = false
+    function connect() {
+        const proto = window.location.protocol ===
+            'https:' ? 'wss:' : 'ws:'
+        ws = new WebSocket(
+            `${proto}//${window.location.host}/ws`)
+        ws.onopen = () => { onStatus?.(true) }
+        ws.onmessage = e => {
+            try { onMessage(JSON.parse(e.data)) }
+            catch {}
+        }
+        ws.onclose = () => {
+            onStatus?.(false)
+            if (!closed)
+                reconnectTimer = setTimeout(connect, 3000)
+        }
+    }
+    connect()
+    return () => {
+        closed = true
+        clearTimeout(reconnectTimer)
+        if (ws) { try { ws.close() } catch {} }
+    }
+}
+\end{lstlisting}
+
+
+\subsection{Реализация клиентского приложения}
+
+Клиентское приложение реализовано на
+React~19~\cite{react_official,react_reference_hooks} с
+использованием сборщика Vite~8~\cite{vite_official,vite_guide}.
+Архитектура построена на функциональных компонентах с
+хуками~\cite{react_reference_hooks}: \texttt{useState} для
+управления локальным состоянием, \texttt{useEffect} для
+побочных эффектов (загрузка данных, WebSocket-подключение),
+\texttt{useMemo} для мемоизации вычислений,
+\texttt{useRef} для хранения мутабельных ссылок.
+
+Навигация реализована через состояние \texttt{page}
+в корневом компоненте \texttt{App.jsx} с персистенцией
+в \texttt{localStorage}~\cite{mdn_webstorage}: при
+обновлении страницы пользователь остаётся на том же
+экране. Компонент \texttt{Shell} формирует макет приложения
+(sidebar, topbar, main) с условным отображением
+административного пункта меню <<Операторы>> только для
+роли \texttt{agronomist}.
+
+В таблице~\ref{tab:pages} приведён перечень страниц
+приложения с описанием функциональности.
+
+\begin{longtable}{|l|l|p{6.2cm}|}
+    \caption{Страницы клиентского приложения} \label{tab:pages} \\
+
+    \hline
+    \textbf{Страница} & \textbf{Роль} & \textbf{Функциональность} \\ \hline
+    \endfirsthead
+
+    \tabcont{\ref{tab:pages}}
+    \textbf{Страница} & \textbf{Роль} & \textbf{Функциональность} \\ \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    Dashboard & все & KPI-карточки со спарклайнами, карта секторов, график активности за 24~часа, лента предупреждений \\ \hline
+    Sectors   & все & Плитки секторов, панель полива с визуализацией растения, телеметрия, назначение оператора \\ \hline
+    Plants    & все & Таблица растений с фильтрацией по сектору, добавление и удаление экземпляров \\ \hline
+    Reports   & все & Агрегированные KPI по сектору, графики влажности/здоровья и температуры, табличная телеметрия \\ \hline
+    Operators & agro & Группировка секторов по оператору, средние показатели здоровья на оператора \\ \hline
+\end{longtable}
+
+
+\subsection{Реализация геймифицированного интерфейса}
+
+Геймификация реализована через визуальные компоненты,
+обеспечивающие наглядную обратную связь о состоянии растений
+и создающие мотивацию к своевременному поливу.
+
+\subsubsection{Визуализация растения}
+
+Компонент \texttt{PlantVisual} (листинг~\ref{lst:plant_visual})
+представляет собой процедурно генерируемую SVG-иллюстрацию
+дерева, параметрически зависящую от текущей влажности почвы
+$\theta$ и индекса здоровья $H$:
+
+\begin{itemize}
+    \item \textbf{Увядание} --- при $\theta < 25$\% ствол
+    и ветви деформируются (наклон пропорционален
+    $1 - \theta / 25$), имитируя поникание кроны.
+    \item \textbf{Затопление} --- при $\theta > 90$\%
+    отображается эллипс водной поверхности у основания
+    дерева.
+    \item \textbf{Цвет кроны} --- определяется по $H$ через
+    цветовое пространство OKLCH: зелёный ($H > 70$),
+    жёлто-зелёный ($H > 40$), коричневый ($H \leq 40$).
+    \item \textbf{Плоды} --- красные точки отображаются
+    только при $H > 55$, визуализируя плодоношение.
+    \item \textbf{Полоска влажности} --- горизонтальный
+    прогресс-бар в нижней части отображает $\theta / 100$.
+\end{itemize}
+
+\begin{lstlisting}[caption={Процедурная визуализация растения (visuals.jsx, фрагмент)}, label={lst:plant_visual}]
+export function PlantVisual({ moisture, health,
+    watering }) {
+    const m = moisture ?? 50
+    const h = health ?? 50
+    const wilt = m < 25 ? 1 - (m / 25) : 0
+    const flood = m > 90 ? (m - 90) / 10 : 0
+    const vigor = Math.max(0.3, h / 100)
+    const leafColor = h > 70
+        ? 'oklch(0.55 0.14 140)'
+        : h > 40
+            ? 'oklch(0.55 0.14 100)'
+            : 'oklch(0.48 0.12 60)'
+    return (
+        <svg viewBox="0 0 200 200">
+          {/* sky, soil, trunk, canopy, fruits */}
+          {watering && /* rain drops animation */}
+        </svg>
+    )
+}
+\end{lstlisting}
+
+При активации полива отображается анимация падающих капель
+с использованием SVG-элемента \texttt{<animate>},
+создающая визуальную обратную связь для оператора.
+
+\subsubsection{Кольцевой индикатор здоровья}
+
+Компонент \texttt{HealthRing} реализует кольцевую диаграмму
+на базе SVG-элемента \texttt{<circle>} с вычисляемым
+атрибутом \texttt{stroke-dashoffset}. Цвет кольца
+динамически изменяется: зелёный ($H > 70$), жёлтый
+($H > 40$), красный ($H \leq 40$), обеспечивая мгновенную
+визуальную индикацию критических состояний.
+
+\subsubsection{Графики телеметрии}
+
+Компоненты \texttt{Sparkline} и \texttt{LineChart} реализуют
+визуализацию временных рядов на чистом SVG без внешних
+библиотек. \texttt{Sparkline} используется в KPI-карточках
+дашборда для отображения тренда последних 48~точек.
+\texttt{LineChart} --- полноразмерный график с осями,
+сеткой и легендой, адаптивно масштабируемый через
+\texttt{ResizeObserver}~\cite{mdn_resizeobserver}.
+
+\subsubsection{Система уведомлений и обратная связь}
+
+При получении WebSocket-события \texttt{notification}
+система отображает всплывающее уведомление (\emph{toast})
+с текстом сообщения и типом события (засуха, переувлажнение,
+критическое здоровье). Уведомления автоматически скрываются
+через 4~секунды. Боковая панель <<Центр событий>> отображает
+историю уведомлений с возможностью пометить как прочитанное
+(индивидуально или все сразу).
+
+\subsubsection{Прогресс-бары и лимиты}
+
+Суточный лимит воды визуализирован прогресс-баром
+с цветовой индикацией: зелёный при потреблении менее 85\%
+лимита, оранжевый --- при превышении порога. При попытке
+полива сверх лимита API возвращает ошибку, а клиент
+отображает соответствующее уведомление.
+
+
+\subsection{Реализация управления поливом}
+
+Управление поливом реализовано как взаимодействие двух
+компонентов: серверного обработчика \texttt{WateringHandler}
+и клиентской панели полива на странице <<Секторы>>.
+
+\subsubsection{Серверная обработка полива}
+
+При получении запроса \texttt{POST /api/water} обработчик
+выполняет следующую последовательность:
+\begin{enumerate}
+    \item Извлечение \texttt{user\_id} и \texttt{role} из
+    контекста JWT.
+    \item Валидация входных данных: \texttt{sector\_id} и
+    \texttt{volume\_liters} (от 0 до 1000~литров).
+    \item Проверка назначения: оператор может поливать
+    только закреплённый за ним сектор.
+    \item Проверка суточного лимита: если
+    $\text{water\_consumed} + V > \text{daily\_water\_limit}$,
+    возвращается ошибка.
+    \item Запись в журнал полива (\texttt{watering\_logs}).
+    \item Пересчёт дефицита влаги: $D_r = D_r - V / S$,
+    где $V$ --- объём в литрах, $S$ --- площадь сектора в м$^2$
+    (конверсия литров в миллиметры водного столба).
+    \item Обновление \texttt{water\_consumed},
+    \texttt{last\_watered\_at} и сохранение в БД.
+    \item Широковещательная рассылка события
+    \texttt{sector:watered} через WebSocket.
+\end{enumerate}
+
+\subsubsection{Клиентский интерфейс полива}
+
+Панель полива интегрирована в страницу <<Секторы>> и
+включает:
+\begin{itemize}
+    \item Кнопки быстрого выбора объёма (5, 10, 20, 40~л)
+    и ползунок \texttt{<input type="range">} для точной
+    настройки от 1 до 100~л.
+    \item Кнопку <<Полить сектор>> с анимацией нажатия
+    (\texttt{transform: scale(0.98)}).
+    \item Визуализацию \texttt{PlantVisual} с динамическим
+    отображением состояния растения.
+    \item Прогресс-бары влажности почвы и суточного лимита.
+    \item Блокировку кнопки, если сектор закреплён за другим
+    оператором, с пояснительным текстом.
+\end{itemize}
+
+
+\subsection{Реализация импорта и экспорта данных}
+
+В соответствии с задачей~6 (подраздел~1.3) реализованы
+механизмы импорта и экспорта конфигурации секторов.
+
+\subsubsection{Экспорт в CSV}
+
+Обработчик \texttt{ExportSectors}
+(листинг~\ref{lst:export_csv}) формирует CSV-файл с
+заголовками \texttt{Content-Type: text/csv} и
+\texttt{Content-Disposition: attachment} для автоматической
+загрузки браузером. Каждая строка содержит 11~полей сектора:
+название, площадь, влажность, температуру, индекс здоровья,
+кумулятивные GDD, фенофазу, коэффициенты $K_s$ и $K_{s,aer}$,
+дефицит $D_r$ и статус.
+
+\begin{lstlisting}[caption={Экспорт секторов в CSV (handler/files.go)}, label={lst:export_csv}]
+func (h *FileHandler) ExportSectors(
+    w http.ResponseWriter, r *http.Request) {
+    sectors, err := h.store.ListSectors(r.Context())
+    if err != nil {
+        writeJSON(w, http.StatusInternalServerError,
+            map[string]string{"error": err.Error()})
+        return
+    }
+    w.Header().Set("Content-Type", "text/csv")
+    w.Header().Set("Content-Disposition",
+        "attachment; filename=sectors.csv")
+    writer := csv.NewWriter(w)
+    defer writer.Flush()
+    writer.Write([]string{"name", "area_sqm",
+        "soil_moisture", "temperature",
+        "health_index", "gdd_cumulative",
+        "phenophase", "ks_water", "ks_aeration",
+        "deficit_dr", "status"})
+    for _, s := range sectors {
+        writer.Write([]string{
+            s.Name,
+            fmt.Sprintf("%.2f", s.AreaSqm),
+            fmt.Sprintf("%.2f", s.SoilMoisture),
+            /* ... remaining fields ... */
+        })
+    }
+}
+\end{lstlisting}
+
+\subsubsection{Импорт из CSV}
+
+Импорт осуществляется через \texttt{multipart/form-data}
+(\texttt{POST /api/import/sectors}). Обработчик парсит
+загруженный CSV-файл, извлекает название и площадь из
+каждой строки (пропуская заголовок) и создаёт новые
+секторы в базе данных. В ответе возвращается количество
+успешно импортированных записей.
+
+На клиенте импорт реализован через скрытый элемент
+\texttt{<input type="file" accept=".csv">}, активируемый
+кнопкой <<Импорт CSV>> (доступна только агроному).
+Загрузка выполняется через \texttt{FormData API} без
+перезагрузки страницы.
+
+
+\subsection{Генерация начальных данных и тестирование}
+
+\subsubsection{Автоматическая генерация тестовых данных}
+
+Для демонстрации и тестирования приложения реализована
+функция \texttt{Seed} (пакет \texttt{internal/storage}),
+автоматически заполняющая пустую базу данных при первом
+запуске. Функция создаёт:
+\begin{itemize}
+    \item 1~агронома и 3~операторов с предустановленными
+    учётными данными;
+    \item 6~секторов плантации с рандомизированными
+    начальными параметрами (площадь 500--2500~м$^2$,
+    влажность 30--70\%, температура 24--30~°C, индекс
+    здоровья 0{,}6--1{,}0) и автоматическим назначением
+    операторов;
+    \item 25--45~растений (\textit{Litchi chinensis})
+    со случайным распределением по секторам;
+    \item историю полива за 7~дней (2--5~событий в сутки
+    на сектор);
+    \item 144~точки телеметрии на сектор (24~часа с
+    интервалом 10~минут) с реалистичным случайным дрейфом;
+    \item 6--18~уведомлений различных типов.
+\end{itemize}
+
+\subsubsection{Функциональное тестирование}
+
+Тестирование проводилось в контейнерном окружении
+(\texttt{docker compose up}) по следующим сценариям:
+
+\begin{enumerate}
+    \item \textbf{Аутентификация и авторизация}: вход под
+    обеими ролями, попытка доступа к административным
+    маршрутам от имени оператора (ожидание HTTP~403),
+    регистрация нового пользователя.
+    \item \textbf{Работа движка симуляции}: наблюдение
+    за изменением влажности, температуры и индекса здоровья
+    в реальном времени; верификация формул через сопоставление
+    значений $K_s$, $K_{s,aer}$ и $D_r$ с ожидаемыми
+    (ручной расчёт по формулам подраздела~2.3).
+    \item \textbf{Управление поливом}: полив сектора с
+    различными объёмами, проверка суточного лимита,
+    попытка полива чужого сектора (ожидание HTTP~403),
+    визуальная проверка анимации и обновления прогресс-баров.
+    \item \textbf{WebSocket}: подключение нескольких
+    клиентов одновременно, верификация синхронного
+    обновления состояния секторов на всех экранах.
+    \item \textbf{Уведомления}: проверка генерации
+    уведомлений при достижении пороговых значений $K_s$
+    и $H$, доставка через WebSocket, пометка как прочитано.
+    \item \textbf{Импорт/экспорт}: экспорт секторов в CSV,
+    импорт из файла, проверка корректности данных.
+\end{enumerate}
+
+В ходе тестирования подтверждена корректность реализации
+математической модели: при отсутствии полива дефицит влаги
+$D_r$ монотонно возрастает за счёт эвапотранспирации,
+коэффициент $K_s$ уменьшается, индекс здоровья деградирует;
+своевременный полив снижает $D_r$, восстанавливает $K_s$
+и активирует восстановление $H$ через коэффициент
+$\beta_{rec}$. Переходы между состояниями автомата
+(нормальное $\to$ засуха $\to$ критическое $\to$
+восстановление) воспроизводились стабильно.

@@ -1,0 +1,837 @@
+\begin{thebibliography}{10}
+\def\selectlanguageifdefined#1{
+\expandafter\ifx\csname date#1\endcsname\relax
+\else\selectlanguage{#1}\fi}
+\providecommand*{\href}[2]{{\small #2}}
+\providecommand*{\url}[1]{{\small #1}}
+\providecommand*{\BibUrl}[1]{\url{#1}}
+\providecommand{\BibAnnote}[1]{}
+\providecommand*{\BibEmph}[1]{#1}
+
+\bibitem{aquacrop_fao}
+\selectlanguageifdefined{english}
+\BibEmph{{Food and Agriculture Organization of the United Nations}}. AquaCrop
+  --- The FAO Crop Water Productivity Model [Электронный
+  ресурс] [Text]. "---
+\newblock 2024. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.fao.org/aquacrop/en/}.
+
+\bibitem{steduto2009_aquacrop}
+\selectlanguageifdefined{english}
+AquaCrop --- The FAO Crop Model to Simulate Yield Response to Water: I.
+  Concepts and Underlying Principles [Text]~/ P.~Steduto, T.~C.~Hsiao, D.~Raes,
+  E.~Fereres~//
+  \href{http://dx.doi.org/10.2134/agronj2008.0139s}{\BibEmph{Agronomy
+  Journal}}. "---
+\newblock 2009. "---
+\newblock Vol. 101, no.~3. "---
+\newblock P.~426--437. "---
+\newblock URL:
+  \BibUrl{https://acsess.onlinelibrary.wiley.com/doi/abs/10.2134/agronj2008.0139s}.
+
+\bibitem{dssat_net}
+\selectlanguageifdefined{english}
+\BibEmph{Hoogenboom,~G.} Decision Support System for Agrotechnology Transfer
+  (DSSAT) Version 4.8.5 [Электронный ресурс] [Text]. "---
+\newblock 2024. "---
+\newblock Версия 4.8.5 выпущена 1 декабря 2024. Дата
+  обращения: 15.04.2026. URL: \BibUrl{https://dssat.net/}.
+
+\bibitem{jones2003_dssat}
+\selectlanguageifdefined{english}
+The DSSAT cropping system model [Text]~/ J.~W.~Jones, G.~Hoogenboom,
+  C.~H.~Porter [et~al.]~//
+  \href{http://dx.doi.org/10.1016/S1161-0301(02)00107-7}{\BibEmph{European
+  Journal of Agronomy}}. "---
+\newblock 2003. "---
+\newblock Vol.~18. "---
+\newblock P.~235--265. "---
+\newblock URL:
+  \BibUrl{https://www.sciencedirect.com/science/article/abs/pii/S1161030102001077}.
+
+\bibitem{apsim_info}
+\selectlanguageifdefined{english}
+\BibEmph{{APSIM Initiative}}. APSIM --- Agricultural Production Systems
+  sIMulator [Электронный ресурс] [Text]. "---
+\newblock 2024. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.apsim.info/}.
+
+\bibitem{holzworth2014_apsim}
+\selectlanguageifdefined{english}
+APSIM --- Evolution towards a new generation of agricultural systems simulation
+  [Text]~/ D.~P.~Holzworth, N.~I.~Huth, P.~G.~deVoil [et~al.]~//
+  \href{http://dx.doi.org/10.1016/j.envsoft.2014.07.009}{\BibEmph{Environmental
+  Modelling \& Software}}. "---
+\newblock 2014. "---
+\newblock Vol.~62. "---
+\newblock P.~327--350. "---
+\newblock URL:
+  \BibUrl{https://www.sciencedirect.com/science/article/abs/pii/S1364815214002102}.
+
+\bibitem{semios_official}
+\selectlanguageifdefined{english}
+\BibEmph{{Semios Technologies Inc.}} On-farm solutions backed by trusted field
+  services [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://semios.com/}.
+
+\bibitem{semios_aginvesting}
+\selectlanguageifdefined{english}
+\BibEmph{Kiernan-Stone,~L.} Semios Raises \$100M to Bring ``Precision
+  Agriculture as a Service'' to The World [Электронный ресурс]
+  [Text]. "---
+\newblock 2021. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://globalaginvesting.com/semios-raises-100m-bring-precision-agriculture-service-world/}.
+
+\bibitem{cropx_official}
+\selectlanguageifdefined{english}
+\BibEmph{{CropX Technologies Ltd.}} CropX Agronomic Farm Management System
+  [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://cropx.com/}.
+
+\bibitem{cropx_thespoon}
+\selectlanguageifdefined{english}
+\BibEmph{Albrecht,~C.} CropX Raises \$10M for its Soil Sensor and Analytics
+  Platform [Электронный ресурс] [Text]. "---
+\newblock 2020. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://thespoon.tech/cropx-raises-10m-for-its-soil-sensor-and-analytics-platform/}.
+
+\bibitem{arable_mark3_official}
+\selectlanguageifdefined{english}
+\BibEmph{{Arable Labs, Inc.}} Arable Mark 3: In-Field Sensing \& Monitoring
+  Made Simple [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.arable.com/mark3/}.
+
+\bibitem{arable_futurefarming}
+\selectlanguageifdefined{english}
+\BibEmph{{Future Farming}}. Arable unveils Mark 3 in-field sensing device and
+  Arable Vision [Электронный ресурс] [Text]. "---
+\newblock 2022. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.futurefarming.com/smart-farming/tools-data/arable-unveils-mark-3-in-field-sensing-device-and-arable-vision/}.
+
+\bibitem{hortau_official}
+\selectlanguageifdefined{english}
+\BibEmph{{Hortau Inc.}} Hortau Technology --- Irrigation Management and Soil
+  Tension Monitoring [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://hortau.com/technology/}.
+
+\bibitem{hortau_growingproduce}
+\selectlanguageifdefined{english}
+\BibEmph{{Growing Produce}}. Unveiling the Latest Soil Sensors and Probes for
+  Field Use [Электронный ресурс] [Text]. "---
+\newblock 2024. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.growingproduce.com/production/equipment/unveiling-the-latest-soil-sensors-and-probes-for-field-use/}.
+
+\bibitem{litefarm_official}
+\selectlanguageifdefined{english}
+\BibEmph{{Centre for Sustainable Food Systems, University of British
+  Columbia}}. LiteFarm --- Sustainable Farm Management Software
+  [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.litefarm.org/}.
+
+\bibitem{litefarm_github}
+\selectlanguageifdefined{english}
+\BibEmph{{LiteFarmOrg}}. LiteFarmOrg/LiteFarm --- community-led digital
+  platform for farmers and scientists [Электронный ресурс]
+  [Text]. "---
+\newblock 2025. "---
+\newblock Релиз v3.9.0 --- 17.12.2025; React/Node.js, GPLv3. Дата
+  обращения: 15.04.2026. URL:
+  \BibUrl{https://github.com/LiteFarmOrg/LiteFarm}.
+
+\bibitem{tania_github}
+\selectlanguageifdefined{english}
+\BibEmph{Priandana,~A.~B.} usetania/tania-core --- Farm management software for
+  the hobbyist and smallholder farmer [Электронный ресурс]
+  [Text]. "---
+\newblock 2024. "---
+\newblock Go + Vue.js; Apache 2.0. Дата обращения: 15.04.2026.
+  URL: \BibUrl{https://github.com/usetania/tania-core}.
+
+\bibitem{tania_usetania_site}
+\selectlanguageifdefined{english}
+\BibEmph{{Tania contributors}}. Tania --- Open Source Farm Management Software
+  [Электронный ресурс] [Text]. "---
+\newblock 2024. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://usetania.org/about/}.
+
+\bibitem{farming_simulator_official}
+\selectlanguageifdefined{english}
+\BibEmph{{GIANTS Software GmbH}}. Farming Simulator --- Official Website
+  [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://farming-simulator.com/}.
+
+\bibitem{giants_fs25_4million}
+\selectlanguageifdefined{english}
+\BibEmph{{GIANTS Software GmbH}}. Farming Simulator 25 Sold 4 Million Copies
+  [Электронный ресурс] [Text]. "---
+\newblock 2025. "---
+\newblock FS25 --- 4 млн копий; серия --- более 40 млн
+  копий с 2008 года. Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.giants-software.com/news.php?show=news-134}.
+
+\bibitem{pavlenko_2024_sciencedirect}
+\selectlanguageifdefined{english}
+Stimulating awareness of Precision Farming through gamification: The Farming
+  Simulator case [Text]~/ T.~Pavlenko, D.~Argyropoulos, M.~Arnoult [et~al.]~//
+  \href{http://dx.doi.org/10.1016/j.atech.2024.100529}{\BibEmph{Smart
+  Agricultural Technology}}. "---
+\newblock 2024. "---
+\newblock Vol.~9. "---
+\newblock P.~100529. "---
+\newblock URL:
+  \BibUrl{https://www.sciencedirect.com/science/article/pii/S2772375524001345}.
+
+\bibitem{pavlenko_2024_centaur_reading}
+\selectlanguageifdefined{english}
+\BibEmph{Pavlenko,~T.} Stimulating awareness of precision farming through
+  gamification: the Farming Simulator case (open access version)
+  [Электронный ресурс] [Text]. "---
+\newblock 2024. "---
+\newblock Институциональный репозиторий CentAUR,
+  University of Reading; CC BY-NC-ND. Дата обращения: 15.04.2026.
+  URL: \BibUrl{https://centaur.reading.ac.uk/117835/}.
+
+\bibitem{smarth2o_cordis}
+\selectlanguageifdefined{english}
+\BibEmph{{European Commission}}. SmartH2O: an ICT Platform to leverage on
+  Social Computing for the efficient management of Water Consumption
+  [Электронный ресурс] [Text]. "---
+\newblock 2017. "---
+\newblock Grant 619172, FP7, 01.04.2014--31.03.2017. Дата
+  обращения: 15.04.2026. URL:
+  \BibUrl{https://cordis.europa.eu/project/id/619172}.
+
+\bibitem{smarth2o_digital_water_prize_ec}
+\selectlanguageifdefined{english}
+\BibEmph{{European Commission}}. Digital Water Prize from Water Innovation
+  Europe 2018 goes to SMARTH2O [Электронный ресурс] [Text].
+  "---
+\newblock 2018. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://digital-strategy.ec.europa.eu/en/news/digital-water-prize-water-innovation-europe-2018-goes-smarth2o}.
+
+\bibitem{senso_solidtech_prelaunch}
+\selectlanguageifdefined{english}
+\BibEmph{{SolidTech}}. Senso --- AI Smart and Gamified Plant Sensor
+  [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Представлен на CES 2026. Дата обращения:
+  15.04.2026. URL:
+  \BibUrl{https://prelaunch.com/projects/senso-senso-advanced-smart-gamified-plant-sensor}.
+
+\bibitem{senso_engadget_ces2026}
+\selectlanguageifdefined{english}
+\BibEmph{MacDonald,~C.} This Tamagotchi clone is designed to help you keep your
+  plants alive [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.engadget.com/home/smart-home/this-tamagotchi-clone-is-designed-to-help-you-keep-your-plants-alive-172000982.html}.
+
+\bibitem{go_dev_official}
+\selectlanguageifdefined{english}
+\BibEmph{{The Go Authors}}. The Go Programming Language [Электронный
+  ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://go.dev/}.
+
+\bibitem{effective_go}
+\selectlanguageifdefined{english}
+\BibEmph{{The Go Authors}}. Effective Go [Электронный ресурс]
+  [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://go.dev/doc/effective_go}.
+
+\bibitem{go_chi_github}
+\selectlanguageifdefined{english}
+\BibEmph{{go-chi contributors}}. go-chi/chi: lightweight, idiomatic and
+  composable router for building Go HTTP services [Электронный
+  ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Ветка v5. Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://github.com/go-chi/chi}.
+
+\bibitem{go_chi_pkgdev}
+\selectlanguageifdefined{english}
+\BibEmph{{go-chi contributors}}. chi package --- github.com/go-chi/chi/v5 (API
+  Reference) [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://pkg.go.dev/github.com/go-chi/chi/v5}.
+
+\bibitem{rfc6455_ietf}
+\selectlanguageifdefined{english}
+\BibEmph{Fette,~I.} RFC 6455 --- The WebSocket Protocol [Электронный
+  ресурс] [Text]. "---
+\newblock 2011. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://datatracker.ietf.org/doc/html/rfc6455}.
+
+\bibitem{mdn_websocket}
+\selectlanguageifdefined{english}
+\BibEmph{{MDN Web Docs}}. WebSocket API --- Web APIs [Электронный
+  ресурс] [Text]. "---
+\newblock 2025. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://developer.mozilla.org/en-US/docs/Web/API/WebSocket}.
+
+\bibitem{gorilla_websocket_github}
+\selectlanguageifdefined{english}
+\BibEmph{{Gorilla WebSocket Authors}}. gorilla/websocket: a fast, well-tested
+  and widely used WebSocket implementation for Go [Электронный
+  ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Актуальные релизы ветки v1.5. Дата
+  обращения: 15.04.2026. URL:
+  \BibUrl{https://github.com/gorilla/websocket}.
+
+\bibitem{gorilla_websocket_pkgdev}
+\selectlanguageifdefined{english}
+\BibEmph{{Gorilla WebSocket Authors}}. websocket package ---
+  github.com/gorilla/websocket (API Reference) [Электронный
+  ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://pkg.go.dev/github.com/gorilla/websocket}.
+
+\bibitem{react_official}
+\selectlanguageifdefined{english}
+\BibEmph{{Meta Open Source}}. React --- The library for web and native user
+  interfaces [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Актуальная версия React 19.2. Дата
+  обращения: 15.04.2026. URL: \BibUrl{https://react.dev/}.
+
+\bibitem{react_reference_hooks}
+\selectlanguageifdefined{english}
+\BibEmph{{Meta Open Source}}. React Reference Overview (Hooks, Components,
+  APIs) [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://react.dev/reference/react}.
+
+\bibitem{vite_official}
+\selectlanguageifdefined{english}
+\BibEmph{You,~E.} Vite --- Next Generation Frontend Tooling
+  [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Актуальная мажорная версия --- Vite 8.
+  Дата обращения: 15.04.2026. URL: \BibUrl{https://vite.dev/}.
+
+\bibitem{vite_guide}
+\selectlanguageifdefined{english}
+\BibEmph{{Vite Team}}. Getting Started --- Vite Guide [Электронный
+  ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://vite.dev/guide/}.
+
+\bibitem{postgresql_official}
+\selectlanguageifdefined{english}
+\BibEmph{{PostgreSQL Global Development Group}}. PostgreSQL --- The World's
+  Most Advanced Open Source Relational Database [Электронный
+  ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Актуальный минорный выпуск ветки 16 ---
+  PostgreSQL 16.13. Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.postgresql.org/}.
+
+\bibitem{postgresql_16_release_notes}
+\selectlanguageifdefined{english}
+\BibEmph{{PostgreSQL Global Development Group}}. PostgreSQL 16 Release Notes
+  (Appendix E.14) [Электронный ресурс] [Text]. "---
+\newblock 2023. "---
+\newblock Релиз 14.09.2023. Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.postgresql.org/docs/16/release-16.html}.
+
+\bibitem{bun_uptrace_official}
+\selectlanguageifdefined{english}
+\BibEmph{Mihailenco,~V.} Bun: The SQL-first Golang ORM that doesn't get in your
+  way [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://bun.uptrace.dev/}.
+
+\bibitem{bun_github}
+\selectlanguageifdefined{english}
+\BibEmph{{Uptrace}}. uptrace/bun: SQL-first Golang ORM [Электронный
+  ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://github.com/uptrace/bun}.
+
+\bibitem{rfc7519_ietf}
+\selectlanguageifdefined{english}
+\BibEmph{Jones,~M.} RFC 7519 --- JSON Web Token (JWT) [Электронный
+  ресурс] [Text]. "---
+\newblock 2015. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://datatracker.ietf.org/doc/html/rfc7519}.
+
+\bibitem{jwt_io_intro}
+\selectlanguageifdefined{english}
+\BibEmph{{Auth0 by Okta}}. JSON Web Token Introduction [Электронный
+  ресурс] [Text]. "---
+\newblock 2024. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://jwt.io/introduction}.
+
+\bibitem{provos_mazieres_1999}
+\selectlanguageifdefined{english}
+\BibEmph{Provos,~N.} A Future-Adaptable Password Scheme [Text]~/ N.~Provos,
+  D.~Mazi\`eres~// Proceedings of the 1999 USENIX Annual Technical Conference.
+  "---
+\newblock [S.\ l.~: s.\ n.], 1999. "---
+\newblock URL:
+  \BibUrl{https://www.usenix.org/legacy/events/usenix99/provos/provos_html/}.
+
+\bibitem{pkggo_bcrypt}
+\selectlanguageifdefined{english}
+\BibEmph{{The Go Authors}}. bcrypt package --- golang.org/x/crypto/bcrypt
+  [Электронный ресурс] [Text]. "---
+\newblock 2025. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://pkg.go.dev/golang.org/x/crypto/bcrypt}.
+
+\bibitem{docker_compose_docs}
+\selectlanguageifdefined{english}
+\BibEmph{{Docker Inc.}} Docker Compose [Электронный ресурс]
+  [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://docs.docker.com/compose/}.
+
+\bibitem{docker_compose_file_reference}
+\selectlanguageifdefined{english}
+\BibEmph{{Docker Inc.}} Compose file reference [Электронный
+  ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://docs.docker.com/reference/compose-file/}.
+
+\bibitem{shen2024_gamification_workforce}
+\selectlanguageifdefined{english}
+\BibEmph{Shen,~C.} Gamification in workforce training: Improving employees'
+  self-efficacy and information security and data protection behaviours
+  [Text]~/ C.~Shen, P.~Y.~K.~Chau, B.~C.~W.~Ho~//
+  \href{http://dx.doi.org/10.1016/j.jbusres.2024.114648}{\BibEmph{Journal of
+  Business Research}}. "---
+\newblock 2024. "---
+\newblock URL:
+  \BibUrl{https://www.sciencedirect.com/science/article/pii/S0148296324001899}.
+
+\bibitem{richardson1981_weather}
+\selectlanguageifdefined{english}
+\BibEmph{Richardson,~C.~W.} Stochastic simulation of daily precipitation,
+  temperature, and solar radiation [Text]~/ C.~W.~Richardson~//
+  \href{http://dx.doi.org/10.1029/WR017i001p00182}{\BibEmph{Water Resources
+  Research}}. "---
+\newblock 1981. "---
+\newblock Vol.~17, no.~1. "---
+\newblock P.~182--190.
+
+\bibitem{semenov1998_larswg}
+\selectlanguageifdefined{english}
+Comparison of the WGEN and LARS-WG stochastic weather generators for diverse
+  climates [Text]~/ M.~A.~Semenov, R.~J.~Brooks, E.~M.~Barrow,
+  C.~W.~Richardson~//
+  \href{http://dx.doi.org/10.3354/cr010095}{\BibEmph{Climate Research}}. "---
+\newblock 1998. "---
+\newblock Vol.~10. "---
+\newblock P.~95--107.
+
+\bibitem{chen2012_weagets}
+\selectlanguageifdefined{english}
+\BibEmph{Chen,~J.} WeaGETS --- a Matlab-based daily scale weather generator for
+  generating precipitation and temperature [Text]~/ J.~Chen, F.~P.~Brissette,
+  R.~Leconte~//
+  \href{http://dx.doi.org/10.13031/2013.41522}{\BibEmph{Transactions of the
+  ASABE}}. "---
+\newblock 2012. "---
+\newblock Vol.~55, no.~3. "---
+\newblock P.~895--906. "---
+\newblock URL:
+  \BibUrl{https://elibrary.asabe.org/abstract.asp?JID=3&AID=41522&CID=t2012&v=55&i=3&T=1}.
+
+\bibitem{chen2020_markov_bias}
+\selectlanguageifdefined{english}
+A Markov Chain-Based Bias Correction Method for Simulating the Temporal
+  Sequence of Daily Precipitation [Text]~/ J.~Chen, C.~Li, F.~P.~Brissette
+  [et~al.]~//
+  \href{http://dx.doi.org/10.3390/atmos11010109}{\BibEmph{Atmosphere}}. "---
+\newblock 2020. "---
+\newblock Vol.~11, no.~1. "---
+\newblock P.~109. "---
+\newblock URL: \BibUrl{https://www.mdpi.com/2073-4433/11/1/109}.
+
+\bibitem{hargreaves2003_history}
+\selectlanguageifdefined{english}
+\BibEmph{Hargreaves,~G.~H.} History and Evaluation of Hargreaves
+  Evapotranspiration Equation [Text]~/ G.~H.~Hargreaves, R.~G.~Allen~//
+  \href{http://dx.doi.org/10.1061/(ASCE)0733-9437(2003)129:1(53)}{\BibEmph{Journal
+  of Irrigation and Drainage Engineering}}. "---
+\newblock 2003. "---
+\newblock Vol. 129, no.~1. "---
+\newblock P.~53--63.
+
+\bibitem{aschonitis2017_modified_hargreaves}
+\selectlanguageifdefined{english}
+Modifying Hargreaves--Samani equation with meteorological variables for
+  estimation of reference evapotranspiration in Turkey [Text]~/
+  V.~G.~Aschonitis, D.~Papamichail, K.~Demertzi [et~al.]~//
+  \href{http://dx.doi.org/10.2166/nh.2016.217}{\BibEmph{Hydrology Research}}.
+  "---
+\newblock 2017. "---
+\newblock Vol.~48, no.~2. "---
+\newblock P.~480--497. "---
+\newblock URL: \BibUrl{https://iwaponline.com/hr/article/48/2/480/1953}.
+
+\bibitem{allen1998_fao56}
+\selectlanguageifdefined{english}
+\BibEmph{Allen,~R.~G.} Crop Evapotranspiration --- Guidelines for Computing
+  Crop Water Requirements (FAO Irrigation and Drainage Paper No.~56)
+  [Электронный ресурс] [Text]. "---
+\newblock 1998. "---
+\newblock Food and Agriculture Organization of the United Nations, Rome.
+  Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.fao.org/4/x0490e/x0490e00.htm}.
+
+\bibitem{zotarelli2010_step_by_step}
+\selectlanguageifdefined{english}
+Step by Step Calculation of the Penman-Monteith Evapotranspiration (FAO-56
+  Method) [Text]~/ L.~Zotarelli, M.~D.~Dukes, C.~C.~Romero [et~al.]~//
+  \BibEmph{EDIS, University of Florida IFAS Extension}. "---
+\newblock 2010. "---
+\newblock no. AE459. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://ask.ifas.ufl.edu/publication/AE459}.
+
+\bibitem{allen2005_dual_kc}
+\selectlanguageifdefined{english}
+FAO-56 Dual Crop Coefficient Method for Estimating Evaporation from Soil and
+  Application Extensions [Text]~/ R.~G.~Allen, W.~O.~Pruitt, J.~L.~Wright
+  [et~al.]~//
+  \href{http://dx.doi.org/10.1061/(ASCE)0733-9437(2005)131:1(2)}{\BibEmph{Journal
+  of Irrigation and Drainage Engineering}}. "---
+\newblock 2005. "---
+\newblock Vol. 131, no.~1. "---
+\newblock P.~2--13.
+
+\bibitem{thorp2022_pyfao56}
+\selectlanguageifdefined{english}
+\BibEmph{Thorp,~K.~R.} pyfao56: A Python implementation of the FAO-56 dual crop
+  coefficient approach [Электронный ресурс] [Text]. "---
+\newblock 2022. "---
+\newblock GitHub repository. Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://github.com/kthorp/pyfao56}.
+
+\bibitem{raes2023_aquacrop_ch3}
+\selectlanguageifdefined{english}
+\BibEmph{Raes,~D.} AquaCrop Reference Manual, Chapter~3 --- Calculation
+  procedures (Version~7.2) [Электронный ресурс] [Text]. "---
+\newblock 2023. "---
+\newblock FAO, Land and Water Division. Дата обращения:
+  15.04.2026. URL:
+  \BibUrl{https://ees.kuleuven.be/en/aquacrop/resources/reference-manual/chapter3aquacropversion7-2.pdf}.
+
+\bibitem{steduto2012_aquacrop_ch1}
+\selectlanguageifdefined{english}
+\BibEmph{Steduto,~P.} FAO crop-water productivity model AquaCrop --- Reference
+  Manual Chapter~1 [Электронный ресурс] [Text]. "---
+\newblock 2012. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://openknowledge.fao.org/server/api/core/bitstreams/23621a46-1512-41a7-ad28-5a3d8141b6dc/content}.
+
+\bibitem{wikipedia_gdd}
+\selectlanguageifdefined{english}
+\BibEmph{{Wikipedia contributors}}. Growing degree-day [Электронный
+  ресурс] [Text]. "---
+\newblock 2024. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://en.wikipedia.org/wiki/Growing_degree-day}.
+
+\bibitem{bygl2024_gdd_phenology}
+\selectlanguageifdefined{english}
+\BibEmph{Boggs,~J.} Growing Degree Days (GDD) and Plant Phenology
+  [Электронный ресурс] [Text]. "---
+\newblock 2024. "---
+\newblock Buckeye Yard and Garden onLine, Ohio State University Extension.
+  Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://bygl.osu.edu/node/2311}.
+
+\bibitem{wei2013_litchi_bbch}
+\selectlanguageifdefined{english}
+Phenological growth stages of lychee (\textit{Litchi chinensis} Sonn.) using
+  the extended BBCH-scale [Text]~/ Y.-Z.~Wei, H.-N.~Zhang, W.-C.~Li [et~al.]~//
+  \href{http://dx.doi.org/10.1016/j.scienta.2013.07.017}{\BibEmph{Scientia
+  Horticulturae}}. "---
+\newblock 2013. "---
+\newblock Vol. 161. "---
+\newblock P.~273--277. "---
+\newblock URL:
+  \BibUrl{https://www.sciencedirect.com/science/article/pii/S0304423813003671}.
+
+\bibitem{kumar2025_litchi_growth}
+\selectlanguageifdefined{english}
+A study on growth dynamics, heat accumulation and phenological stages under
+  subtropical conditions: optimizing litchi cultivation [Text]~/ V.~Kumar,
+  S.~K.~Verma, S.~K.~Singh, G.~S.~Vishen~//
+  \href{http://dx.doi.org/10.1007/s11104-025-07305-w}{\BibEmph{Plant and
+  Soil}}. "---
+\newblock 2025. "---
+\newblock URL:
+  \BibUrl{https://link.springer.com/article/10.1007/s11104-025-07305-w}.
+
+\bibitem{shaw2015_waterlogging}
+\selectlanguageifdefined{english}
+\BibEmph{Shaw,~R.~E.} Improved Empirical Representation of Plant Responses to
+  Waterlogging for Simulating Crop Yield [Text]~/ R.~E.~Shaw, W.~S.~Meyer~//
+  \href{http://dx.doi.org/10.2134/agronj14.0625}{\BibEmph{Agronomy Journal}}.
+  "---
+\newblock 2015. "---
+\newblock Vol. 107, no.~5. "---
+\newblock P.~1711--1723. "---
+\newblock URL:
+  \BibUrl{https://acsess.onlinelibrary.wiley.com/doi/10.2134/agronj14.0625}.
+
+\bibitem{liu2020_waterlogging_review}
+\selectlanguageifdefined{english}
+The State of the Art in Modeling Waterlogging Impacts on Plants [Text]~/
+  K.~Liu, M.~T.~Harrison, J.~Hunt [et~al.]~//
+  \href{http://dx.doi.org/10.1029/2020EF001801}{\BibEmph{Earth's Future}}. "---
+\newblock 2020. "---
+\newblock Vol.~8, no.~12. "---
+\newblock P.~e2020EF001801.
+
+\bibitem{jackson1988_cwsi}
+\selectlanguageifdefined{english}
+\BibEmph{Jackson,~R.~D.} A reexamination of the crop water stress index
+  [Text]~/ R.~D.~Jackson, W.~P.~Kustas, B.~J.~Choudhury~//
+  \href{http://dx.doi.org/10.1007/BF00296705}{\BibEmph{Irrigation Science}}.
+  "---
+\newblock 1988. "---
+\newblock Vol.~9, no.~4. "---
+\newblock P.~309--317.
+
+\bibitem{idso1981_cwsi}
+\selectlanguageifdefined{english}
+Normalizing the stress-degree-day parameter for environmental variability
+  [Text]~/ S.~B.~Idso, R.~D.~Jackson, P.~J.~Pinter [et~al.]~//
+  \href{http://dx.doi.org/10.1016/0002-1571(81)90032-7}{\BibEmph{Agricultural
+  Meteorology}}. "---
+\newblock 1981. "---
+\newblock Vol.~24. "---
+\newblock P.~45--55.
+
+\bibitem{zhou2024_cwsi_maize}
+\selectlanguageifdefined{english}
+Crop water stress index characterizes maize productivity under water and salt
+  stress [Text]~/ H.~Zhou, G.~Zhou, Q.~He [et~al.]~//
+  \href{http://dx.doi.org/10.1016/j.fcr.2024.109520}{\BibEmph{Field Crops
+  Research}}. "---
+\newblock 2024. "---
+\newblock URL:
+  \BibUrl{https://www.sciencedirect.com/science/article/abs/pii/S0378429024002971}.
+
+\bibitem{katimbo2021_cwsi_rootzone}
+\selectlanguageifdefined{english}
+Estimation of root-zone soil moisture using crop water stress index (CWSI) in
+  agricultural fields [Text]~/ A.~Katimbo, D.~R.~Rudnick, K.~C.~DeJonge
+  [et~al.]~//
+  \href{http://dx.doi.org/10.1080/15481603.2021.1877009}{\BibEmph{GIScience \&
+  Remote Sensing}}. "---
+\newblock 2021. "---
+\newblock Vol.~58, no.~2. "---
+\newblock P.~234--257. "---
+\newblock URL:
+  \BibUrl{https://www.tandfonline.com/doi/full/10.1080/15481603.2021.1877009}.
+
+\bibitem{sun2025_monte_carlo_crop}
+\selectlanguageifdefined{english}
+\BibEmph{Sun,~Y.} Optimization of Crop Planting Strategy Based on Monte Carlo
+  Simulation [Text]~/ Y.~Sun~// \BibEmph{Frontiers in Sustainable Development}.
+  "---
+\newblock 2025. "---
+\newblock URL: \BibUrl{https://francis-press.com/papers/19160}.
+
+\bibitem{jones2017_bayesian_sugarcane}
+\selectlanguageifdefined{english}
+A Stochastic Method for Crop Models: Including Uncertainty in a Sugarcane Model
+  [Text]~/ J.~W.~Jones, J.~He, K.~J.~Boote [et~al.]~//
+  \href{http://dx.doi.org/10.2134/agronj2016.02.0103}{\BibEmph{Agronomy
+  Journal}}. "---
+\newblock 2017. "---
+\newblock Vol. 109, no.~2. "---
+\newblock P.~483--495. "---
+\newblock URL:
+  \BibUrl{https://acsess.onlinelibrary.wiley.com/doi/abs/10.2134/agronj2016.02.0103}.
+
+\bibitem{graveline2012_monte_carlo_farming}
+\selectlanguageifdefined{english}
+Impact of farming on water resources: Assessing uncertainty with Monte Carlo
+  simulations in a global change context [Text]~/ N.~Graveline, S.~Loubier,
+  G.~Gleyses, J.-D.~Rinaudo~//
+  \href{http://dx.doi.org/10.1016/j.agsy.2012.01.002}{\BibEmph{Agricultural
+  Systems}}. "---
+\newblock 2012. "---
+\newblock Vol. 108. "---
+\newblock P.~29--41.
+
+\bibitem{vieira2025_wheat_sawfly_gdd}
+\selectlanguageifdefined{english}
+A new growing degree-day phenology model for wheat stem sawfly in Colorado
+  wheat fields [Text]~/ H.~V.~Vieira, B.~Z.~Bradford, A.~Osterholzer
+  [et~al.]~//
+  \href{http://dx.doi.org/10.1371/journal.pone.0320497}{\BibEmph{PLOS ONE}}.
+  "---
+\newblock 2025. "---
+\newblock Vol.~20, no.~4. "---
+\newblock P.~e0320497. "---
+\newblock URL: \BibUrl{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11975124/}.
+
+\bibitem{newlands2014_probabilistic_yield}
+\selectlanguageifdefined{english}
+An integrated, probabilistic model for improved seasonal forecasting of
+  agricultural crop yield under environmental uncertainty [Text]~/
+  N.~K.~Newlands, D.~S.~Zamar, L.~A.~Kouadio [et~al.]~//
+  \href{http://dx.doi.org/10.3389/fenvs.2014.00017}{\BibEmph{Frontiers in
+  Environmental Science}}. "---
+\newblock 2014. "---
+\newblock Vol.~2. "---
+\newblock P.~17. "---
+\newblock URL:
+  \BibUrl{https://www.frontiersin.org/journals/environmental-science/articles/10.3389/fenvs.2014.00017/full}.
+
+\bibitem{madeira2024_serious_games_agriculture}
+\selectlanguageifdefined{english}
+A sustainable game changer? Systematic review of serious games used for
+  agriculture and research agenda [Text]~/ L.~Madeira, S.~Lardon, V.~Souchère
+  [et~al.]~//
+  \href{http://dx.doi.org/10.1016/j.agsy.2024.104203}{\BibEmph{Agricultural
+  Systems}}. "---
+\newblock 2024. "---
+\newblock URL:
+  \BibUrl{https://www.sciencedirect.com/science/article/pii/S0308521X24003287}.
+
+\bibitem{cinar2024_serious_games_scoping}
+\selectlanguageifdefined{english}
+Serious video games for agricultural learning: Scoping review [Text]~/
+  I.~Cinar, O.~M.~Joffre, M.~Lamers [et~al.]~// \BibEmph{JMIR Serious Games}.
+  "---
+\newblock 2024. "---
+\newblock URL:
+  \BibUrl{https://www.researchgate.net/publication/378085889_Serious_video_games_for_agricultural_learning_scoping_review}.
+
+\bibitem{suwarno2014_virtual_farmers}
+\selectlanguageifdefined{english}
+\BibEmph{Suwarno,~F.} Virtual Farmers Training: Realistic Simulation with
+  Amusements using Historic Simulation and Game Storyline [Text]~/ F.~Suwarno,
+  R.~Hartanto, L.~E.~Nugroho~// Proceedings of the International Conference on
+  Advanced Computer Science and Information Systems (ICACSIS). "---
+\newblock [S.\ l.~: s.\ n.], 2014. "---
+\newblock URL:
+  \BibUrl{https://www.researchgate.net/publication/273901161_Virtual_Farmers_Training}.
+
+\bibitem{ropert2025_game_tick}
+\selectlanguageifdefined{english}
+\BibEmph{Ropert,~M.} What makes a game tick? Part~2 --- Basic Architecture
+  [Электронный ресурс] [Text]. "---
+\newblock 2025. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://mropert.github.io/2025/04/30/making_games_tick_part2/}.
+
+\bibitem{getgud2024_multiplayer_arch}
+\selectlanguageifdefined{english}
+\BibEmph{{Getgud.io}}. Mastering Multiplayer Game Architecture: Choosing the
+  Right Approach [Электронный ресурс] [Text]. "---
+\newblock 2024. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://www.getgud.io/blog/mastering-multiplayer-game-architecture-choosing-the-right-approach/}.
+
+\bibitem{techtide2024_game_server}
+\selectlanguageifdefined{english}
+\BibEmph{{TechTide Solutions}}. Game Server Architecture Basics: A Practical
+  Outline for Building Multiplayer Systems [Электронный
+  ресурс] [Text]. "---
+\newblock 2024. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://techtidesolutions.com/blog/game-server-architecture-basics/}.
+
+\bibitem{docker_multistage_docs}
+\selectlanguageifdefined{english}
+\BibEmph{{Docker Inc.}} Multi-stage builds [Электронный
+  ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://docs.docker.com/build/building/multi-stage/}.
+
+\bibitem{go_context_pkgdev}
+\selectlanguageifdefined{english}
+\BibEmph{{The Go Authors}}. context package --- Go standard library
+  [Электронный ресурс] [Text]. "---
+\newblock 2026. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://pkg.go.dev/context}.
+
+\bibitem{mdn_webstorage}
+\selectlanguageifdefined{english}
+\BibEmph{{MDN Web Docs}}. Web Storage API --- Web APIs [Электронный
+  ресурс] [Text]. "---
+\newblock 2025. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API}.
+
+\bibitem{mdn_resizeobserver}
+\selectlanguageifdefined{english}
+\BibEmph{{MDN Web Docs}}. ResizeObserver --- Web APIs [Электронный
+  ресурс] [Text]. "---
+\newblock 2025. "---
+\newblock Дата обращения: 15.04.2026. URL:
+  \BibUrl{https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver}.
+
+\bibitem{gost_7_32_2017_cntd}
+\selectlanguageifdefined{russian}
+\BibEmph{{Росстандарт}}. ГОСТ 7.32--2017 СИБИД. Отчёт
+  о научно-исследовательской работе.
+  Структура и правила оформления (с
+  Поправками) [Электронный ресурс] [{Текст}].
+  "---
+\newblock 2017. "---
+\newblock Приказ Росстандарта № 1494-ст от 24.10.2017,
+  действует с 01.07.2018. Дата обращения: 15.04.2026.
+  URL: \BibUrl{https://docs.cntd.ru/document/1200157208}.
+
+\bibitem{gost_7_32_2017_garant}
+\selectlanguageifdefined{russian}
+\BibEmph{{Росстандарт}}. Межгосударственный
+  стандарт ГОСТ 7.32--2017 <<СИБИД. Отчёт о
+  научно-исследовательской работе.
+  Структура и правила оформления>>
+  [Электронный ресурс] [{Текст}]. "---
+\newblock 2017. "---
+\newblock По официальному изданию
+  Стандартинформ, Москва, 2017. Дата
+  обращения: 15.04.2026. URL:
+  \BibUrl{https://base.garant.ru/71884728/}.
+
+\end{thebibliography}
