@@ -64,14 +64,26 @@ type Sector struct {
 	Phenophase      string     `bun:"phenophase"                                json:"phenophase"`
 	KsWater         float64    `bun:"ks_water"                                  json:"ks_water"`
 	KsAeration      float64    `bun:"ks_aeration"                               json:"ks_aeration"`
+	Cwsi            float64    `bun:"cwsi"                                      json:"cwsi"`
 	DeficitDr       float64    `bun:"deficit_dr"                                json:"deficit_dr"`
 	Status          string     `bun:"status"                                    json:"status"`
 	OperatorID      *string    `bun:"operator_id,type:uuid"                     json:"operator_id"`
 	LastWateredAt   *time.Time `bun:"last_watered_at"                           json:"last_watered_at"`
 	DailyWaterLimit float64    `bun:"daily_water_limit"                         json:"daily_water_limit"`
 	WaterConsumed   float64    `bun:"water_consumed"                            json:"water_consumed"`
-	CreatedAt       time.Time  `bun:"created_at,default:now()"                  json:"created_at"`
-	UpdatedAt       time.Time  `bun:"updated_at,default:now()"                  json:"updated_at"`
+	// gamification streak counters (in simulated days / ticks)
+	HealthyStreak        int  `bun:"healthy_streak"          json:"healthy_streak"`
+	SafeStreak           int  `bun:"safe_streak"             json:"safe_streak"`
+	CrisisStreak         int  `bun:"crisis_streak"           json:"crisis_streak"`
+	EquipmentLockedTicks int  `bun:"equipment_locked_ticks"  json:"equipment_locked_ticks"`
+	PestActive           bool `bun:"pest_active"             json:"pest_active"`
+
+	// last alert kind raised for this sector — used to emit notifications only on
+	// state transitions instead of every tick (avoids notification spam).
+	LastAlertKind string `bun:"last_alert_kind" json:"-"`
+
+	CreatedAt time.Time `bun:"created_at,default:now()"                  json:"created_at"`
+	UpdatedAt time.Time `bun:"updated_at,default:now()"                  json:"updated_at"`
 }
 
 type SectorInput struct {
@@ -87,6 +99,17 @@ func (s *SectorInput) Validate() error {
 		return errors.New("area must be positive")
 	}
 	return nil
+}
+
+type SectorOverrideInput struct {
+	Temperature     *float64 `json:"temperature"`
+	SoilMoisture    *float64 `json:"soil_moisture"`
+	HealthIndex     *float64 `json:"health_index"`
+	GddCumulative   *float64 `json:"gdd_cumulative"`
+	DeficitDr       *float64 `json:"deficit_dr"`
+	DailyWaterLimit *float64 `json:"daily_water_limit"`
+	WaterConsumed   *float64 `json:"water_consumed"`
+	Event           string   `json:"event"`
 }
 
 // plants
@@ -173,4 +196,95 @@ type Notification struct {
 	Message   string    `bun:"message,notnull"                           json:"message"`
 	IsRead    bool      `bun:"is_read"                                   json:"is_read"`
 	CreatedAt time.Time `bun:"created_at,default:now()"                  json:"created_at"`
+}
+
+// training analytics (gamification scoring)
+
+type TrainingScore struct {
+	bun.BaseModel `bun:"table:training_scores"`
+
+	ID              string    `bun:"id,pk,type:uuid,default:gen_random_uuid()" json:"id"`
+	UserID          string    `bun:"user_id,notnull,type:uuid"                 json:"user_id"`
+	SessionID       string    `bun:"session_id,type:uuid"                      json:"session_id"`
+	TotalScore      float64   `bun:"total_score"                               json:"total_score"`
+	Badges          []string  `bun:"badges,type:jsonb"                         json:"badges"`
+	AvgHealth       float64   `bun:"avg_health"                                json:"avg_health"`
+	WaterEfficiency float64   `bun:"water_efficiency"                          json:"water_efficiency"`
+	SumHealth       float64   `bun:"sum_health"                                json:"-"`
+	SumEfficiency   float64   `bun:"sum_efficiency"                            json:"-"`
+	TickCount       int       `bun:"tick_count"                                json:"tick_count"`
+	UpdatedAt       time.Time `bun:"updated_at,default:now()"                  json:"updated_at"`
+
+	// joined from users for leaderboard responses (not a column)
+	UserName string `bun:"user_name,scanonly" json:"user_name"`
+}
+
+// LeaderboardEntry is the agronomist-facing ranking row.
+type LeaderboardEntry struct {
+	UserID          string   `json:"user_id"`
+	Name            string   `json:"name"`
+	TotalScore      float64  `json:"total_score"`
+	AvgHealth       float64  `json:"avg_health"`
+	WaterEfficiency float64  `json:"water_efficiency"`
+	Badges          []string `json:"badges"`
+}
+
+// weather generator configuration (per climate profile)
+
+type WeatherConfig struct {
+	bun.BaseModel `bun:"table:weather_configs"`
+
+	ID         string  `bun:"id,pk,type:uuid,default:gen_random_uuid()" json:"id"`
+	Name       string  `bun:"name,notnull"                              json:"name"`
+	IsActive   bool    `bun:"is_active"                                 json:"is_active"`
+	PDryToWet  float64 `bun:"p_dry_to_wet"  json:"p_dry_to_wet"`
+	PWetToWet  float64 `bun:"p_wet_to_wet"  json:"p_wet_to_wet"`
+	GammaShape float64 `bun:"gamma_shape"  json:"gamma_shape"`
+	GammaScale float64 `bun:"gamma_scale"  json:"gamma_scale"`
+	PHeat      float64 `bun:"p_heat"       json:"p_heat"`
+	PPestBase  float64 `bun:"p_pest_base"  json:"p_pest_base"`
+	PEquipment float64 `bun:"p_equipment"  json:"p_equipment"`
+	Latitude   float64 `bun:"latitude"     json:"latitude"`
+	EtMethod   string  `bun:"et_method"    json:"et_method"` // "hargreaves" | "penman"
+
+	CreatedAt time.Time `bun:"created_at,default:now()" json:"created_at"`
+	UpdatedAt time.Time `bun:"updated_at,default:now()" json:"updated_at"`
+}
+
+// DefaultWeatherConfig returns the calibrated baseline for Guatemala (Cobán).
+func DefaultWeatherConfig() *WeatherConfig {
+	return &WeatherConfig{
+		Name:       "default",
+		IsActive:   true,
+		PDryToWet:  0.20,
+		PWetToWet:  0.55,
+		GammaShape: 1.5,
+		GammaScale: 6.0,
+		PHeat:      0.05,
+		PPestBase:  0.02,
+		PEquipment: 0.02,
+		Latitude:   15.47,
+		EtMethod:   "hargreaves",
+	}
+}
+
+// AwardInput is the agronomist's manual scoring action for an operator (chapter 2.4):
+// adjust points (can be negative) and grant/revoke badges.
+type AwardInput struct {
+	Points       float64  `json:"points"`
+	AddBadges    []string `json:"add_badges"`
+	RemoveBadges []string `json:"remove_badges"`
+}
+
+// WeatherConfigInput is the agronomist-tunable subset.
+type WeatherConfigInput struct {
+	PDryToWet  *float64 `json:"p_dry_to_wet"`
+	PWetToWet  *float64 `json:"p_wet_to_wet"`
+	GammaShape *float64 `json:"gamma_shape"`
+	GammaScale *float64 `json:"gamma_scale"`
+	PHeat      *float64 `json:"p_heat"`
+	PPestBase  *float64 `json:"p_pest_base"`
+	PEquipment *float64 `json:"p_equipment"`
+	Latitude   *float64 `json:"latitude"`
+	EtMethod   *string  `json:"et_method"`
 }

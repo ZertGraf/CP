@@ -23,6 +23,7 @@ export default function Login({ onLogin }) {
             localStorage.setItem('token', data.token)
             localStorage.setItem('role', data.role)
             localStorage.setItem('name', data.name)
+            localStorage.setItem('id', data.id)
             onLogin()
         } catch (err) {
             setError(err.message || 'Ошибка входа')

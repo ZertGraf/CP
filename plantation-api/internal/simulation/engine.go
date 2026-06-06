@@ -2,9 +2,14 @@ package simulation
 
 import (
 	"context"
+	crand "crypto/rand"
+	"fmt"
 	"log"
 	"math"
 	"math/rand"
+	"os"
+	"strconv"
+	"sync"
 	"time"
 
 	"plantation-api/internal/model"
@@ -15,19 +20,33 @@ import (
 const (
 	tickInterval = 10 * time.Second
 
+	// tickScale compresses daily ET and precipitation into 10-second ticks.
+	// 0.05 ≈ 1 simulated day per real minute; soil lasts ~20 min before needing water.
+	tickScale = 0.05
+
 	alphaDrought = 0.03
 	alphaFlood   = 0.02
 	alphaHeat    = 0.01
+	alphaPest    = 0.03 // ongoing health drain while an infestation is untreated
 	betaRec      = 0.05
 	tBase        = 10.0
 	taw          = 50.0
 	pDepletion   = 0.5
-	thetaSat     = 100.0
-	thetaAer     = 15.0
 
-	// markov transition probabilities (wet/dry days)
-	pDryToWet = 0.20
-	pWetToWet = 0.55
+	// Field-capacity model: DeficitDr=0 → soil at 70% (not 100% saturated).
+	// Saturation (>70%) only from explicit flood events / heavy over-watering.
+	thetaFC  = 70.0
+	thetaWP  = 20.0
+	thetaAer = 30.0 // mm of excess above FC for full aeration stress
+
+	// AR(1) air-temperature generator parameters (chapter 2.3.1).
+	arRho   = 0.70 // autoregression coefficient
+	arSigma = 2.5  // innovation std-dev, °C
+
+	// gamification badge thresholds (simulated days = ticks)
+	badgeWaterKeeperDays  = 7
+	badgeGreenMasterDays  = 14
+	badgeCrisisManagerRun = 3
 )
 
 // phenophase thresholds following extended BBCH scale for litchi
@@ -45,26 +64,52 @@ var phenoPhases = []struct {
 	{2200, "08", 0.85},
 }
 
+// weatherState is the regional weather generated once per tick and shared across
+// all sectors (one plantation, one climate). Subsystem 1 of the tick pipeline.
+type weatherState struct {
+	isWet     bool
+	tMax      float64
+	tMin      float64
+	tMean     float64
+	precip    float64 // daily depth, mm
+	heatEvent bool
+}
+
 type Engine struct {
-	store   *storage.Storage
-	hub     *ws.Hub
-	lastDay int
-	rng     *rand.Rand
-	wasWet  bool
+	store     *storage.Storage
+	hub       *ws.Hub
+	lastDay   int
+	rng       *rand.Rand
+	baseSeed  int64
+	wasWet    bool
+	tempResid float64 // AR(1) residual carried between ticks
+	tickCount int64
+	sessionID string
 }
 
 func NewEngine(store *storage.Storage, hub *ws.Hub) *Engine {
+	// SIM_SEED makes the whole simulation deterministic and replayable for the
+	// agronomist's action analytics (chapter 2.5); unset → fresh random seed.
+	seed := time.Now().UnixNano()
+	if v := os.Getenv("SIM_SEED"); v != "" {
+		if s, err := strconv.ParseInt(v, 10, 64); err == nil {
+			seed = s
+			log.Printf("simulation: deterministic mode, seed=%d", seed)
+		}
+	}
 	return &Engine{
-		store:   store,
-		hub:     hub,
-		lastDay: time.Now().YearDay(),
-		rng:     rand.New(rand.NewSource(time.Now().UnixNano())),
+		store:     store,
+		hub:       hub,
+		lastDay:   time.Now().YearDay(),
+		rng:       rand.New(rand.NewSource(seed)),
+		baseSeed:  seed,
+		sessionID: genUUID(),
 	}
 }
 
 func (e *Engine) Start(ctx context.Context) {
 	ticker := time.NewTicker(tickInterval)
-	log.Printf("simulation engine started, tick every %s", tickInterval)
+	log.Printf("simulation engine started, tick every %s, session=%s", tickInterval, e.sessionID)
 
 	go func() {
 		for {
@@ -91,52 +136,122 @@ func (e *Engine) tick(ctx context.Context) {
 		}
 	}
 
+	cfg, err := e.store.GetActiveWeatherConfig(ctx)
+	if err != nil {
+		log.Printf("weather config load failed, using default: %v", err)
+		cfg = model.DefaultWeatherConfig()
+	}
+
+	// --- subsystem 1: WeatherTick (generated once, regionally shared) ---
+	wx := e.generateWeather(cfg)
+	e.tickCount++
+
 	sectors, err := e.store.ListSectors(ctx)
 	if err != nil {
 		log.Printf("simulation tick error: %v", err)
 		return
 	}
 
+	// each sector evolves independently → fan out across goroutines (chapter 2.5).
+	results := make([]*scoreResult, len(sectors))
+	var wg sync.WaitGroup
 	for i := range sectors {
-		e.simulateSector(ctx, &sectors[i])
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			// per-sector RNG keeps the run deterministic yet decorrelated between sectors.
+			rng := rand.New(rand.NewSource(e.baseSeed + e.tickCount*1_000_003 + int64(idx)))
+			results[idx] = e.simulateSector(ctx, &sectors[idx], wx, cfg, rng)
+		}(i)
+	}
+	wg.Wait()
+
+	// --- subsystem 8: ScoringTick (applied sequentially to avoid row races) ---
+	for _, res := range results {
+		if res == nil || res.operatorID == "" {
+			continue
+		}
+		if err := e.store.ApplyScore(ctx, res.operatorID, e.sessionID,
+			res.delta, res.health, res.efficiency, res.badges); err != nil {
+			log.Printf("scoring failed for %s: %v", res.operatorID, err)
+		}
 	}
 }
 
-func (e *Engine) simulateSector(ctx context.Context, sec *model.Sector) {
-	// --- 1. WeatherTick: markov chain for wet/dry state ---
-	var pWet float64
+// generateWeather runs the Markov wet/dry chain, the AR(1) temperature model and the
+// gamma rainfall sampler (chapter 2.3.1, equations 2.1).
+func (e *Engine) generateWeather(cfg *model.WeatherConfig) weatherState {
+	pWet := cfg.PDryToWet
 	if e.wasWet {
-		pWet = pWetToWet
-	} else {
-		pWet = pDryToWet
+		pWet = cfg.PWetToWet
 	}
-	isWetDay := e.rng.Float64() < pWet
-	e.wasWet = isWetDay
+	isWet := e.rng.Float64() < pWet
+	e.wasWet = isWet
 
-	tMeanBase := 25.0
-	tMax := tMeanBase + 5.0 + (e.rng.Float64()*4 - 2)
-	tMin := tMeanBase - 5.0 + (e.rng.Float64()*4 - 2)
+	// AR(1): resid_t = ρ·resid_{t-1} + σ·sqrt(1-ρ²)·z, conditioned on wet/dry state.
+	z := e.rng.NormFloat64()
+	e.tempResid = arRho*e.tempResid + arSigma*math.Sqrt(1.0-arRho*arRho)*z
 
-	// anomalous heat event (Monte Carlo, ~3% per tick in dry weather)
-	if !isWetDay && e.rng.Float64() < 0.03 {
-		tMax += 5 + e.rng.Float64()*3
+	seasonalMean := 25.0
+	wetOffset := 0.0
+	amplitude := 6.0
+	if isWet {
+		wetOffset = -2.5 // overcast wet days are cooler
+		amplitude = 4.5  // smaller diurnal range under cloud cover
+	}
+	tMean := seasonalMean + wetOffset + e.tempResid
+	tMax := tMean + amplitude
+	tMin := tMean - amplitude
+
+	wx := weatherState{isWet: isWet}
+
+	// anomalous heat event (Monte Carlo) — only in dry weather.
+	if !isWet && e.rng.Float64() < cfg.PHeat {
+		bump := 5.0 + e.rng.Float64()*3.0
+		tMax += bump
+		tMean += bump / 2.0
+		wx.heatEvent = true
 	}
 
-	tMean := (tMax + tMin) / 2.0
-	sec.Temperature = tMean
-
-	var precip float64
-	if isWetDay {
-		// simplified gamma distribution via inverse transform
-		precip = -5.0 * math.Log(1.0-e.rng.Float64())
-		if precip > 30 {
-			precip = 30
+	if isWet {
+		precip := sampleGamma(e.rng, cfg.GammaShape, cfg.GammaScale)
+		if precip > 60 {
+			precip = 60
 		}
+		wx.precip = precip
 	}
 
-	// --- 2. ET0Tick: Hargreaves-Samani equation ---
-	ra := 15.0
-	et0 := 0.0023 * ra * (tMean + 17.8) * math.Sqrt(math.Max(0, tMax-tMin))
+	wx.tMax = tMax
+	wx.tMin = tMin
+	wx.tMean = (tMax + tMin) / 2.0
+	return wx
+}
+
+type scoreResult struct {
+	operatorID string
+	delta      float64
+	health     float64
+	efficiency float64
+	badges     []string
+}
+
+func (e *Engine) simulateSector(ctx context.Context, sec *model.Sector, wx weatherState, cfg *model.WeatherConfig, rng *rand.Rand) *scoreResult {
+	// equipment lock decays at the start of the tick (chapter 2.3.6 — failure limits
+	// available watering for 1–3 ticks rather than directly damaging the plant).
+	if sec.EquipmentLockedTicks > 0 {
+		sec.EquipmentLockedTicks--
+	}
+
+	sec.Temperature = wx.tMean
+
+	// --- 2. ET0Tick: Hargreaves-Samani or full Penman-Monteith (FAO-56) ---
+	doy := time.Now().YearDay()
+	var et0 float64
+	if cfg.EtMethod == "penman" {
+		et0 = et0PenmanMonteith(wx.tMax, wx.tMin, cfg.Latitude, doy, 2.0) * tickScale
+	} else {
+		et0 = et0Hargreaves(wx.tMax, wx.tMin, cfg.Latitude, doy) * tickScale
+	}
 
 	// dual crop coefficient: ET_c = (Ks * Kcb + Ke) * ET0
 	kcb := kcbForPhase(sec.Phenophase)
@@ -144,19 +259,21 @@ func (e *Engine) simulateSector(ctx context.Context, sec *model.Sector) {
 	etc := (sec.KsWater*kcb + ke) * et0
 
 	// --- 3. WaterBalanceTick ---
-	// irrigation I(t) is applied directly by the watering API handler;
-	// the engine handles natural processes: precipitation and ET
-	peff := precip * 0.8
+	peff := wx.precip * 0.8 * tickScale
 
 	netDr := sec.DeficitDr - peff + etc
 	if netDr < 0 {
 		netDr = 0
 	}
-	sec.DeficitDr = netDr
+	sec.DeficitDr = math.Min(taw, netDr)
 
-	// convert deficit to volumetric moisture
-	sec.SoilMoisture = math.Max(0, thetaSat-(sec.DeficitDr/taw)*(thetaSat-20))
-	sec.SoilMoisture = math.Min(100, sec.SoilMoisture)
+	// field-capacity soil moisture: DeficitDr=0 → 70% (not 100% saturated).
+	normalSM := math.Max(thetaWP, thetaFC-(sec.DeficitDr/taw)*(thetaFC-thetaWP))
+	if sec.SoilMoisture > thetaFC {
+		sec.SoilMoisture = math.Max(normalSM, sec.SoilMoisture-10.0*tickScale)
+	} else {
+		sec.SoilMoisture = normalSM
+	}
 
 	// Ks water stress coefficient (FAO-56)
 	if sec.DeficitDr <= pDepletion*taw {
@@ -166,52 +283,70 @@ func (e *Engine) simulateSector(ctx context.Context, sec *model.Sector) {
 	}
 
 	// --- 4. PhenologyTick: GDD accumulation ---
-	gdd := math.Max(0, tMean-tBase)
+	// scaled by tickScale to match the compressed-day model used for ET and rainfall,
+	// so phenophases progress through the BBCH scale gradually instead of saturating.
+	gdd := math.Max(0, wx.tMean-tBase) * tickScale
 	sec.GddCumulative += gdd
 	sec.Phenophase = phaseForGDD(sec.GddCumulative)
 
 	// --- 5. StressTick ---
-	// aeration stress (waterlogging)
-	if sec.SoilMoisture <= thetaSat-thetaAer {
+	if sec.SoilMoisture <= thetaFC {
 		sec.KsAeration = 1.0
 	} else {
-		sec.KsAeration = math.Max(0, (thetaSat-sec.SoilMoisture)/thetaAer)
+		excess := sec.SoilMoisture - thetaFC
+		sec.KsAeration = math.Max(0, 1.0-excess/thetaAer)
 	}
 
-	// heat stress coefficient
 	ksT := 1.0
-	if tMax > 35.0 {
-		ksT = math.Max(0, 1.0-(tMax-35.0)*0.1)
+	if wx.tMax > 35.0 {
+		ksT = math.Max(0, 1.0-(wx.tMax-35.0)*0.1)
 	}
+
+	// CWSI for the agronomist dashboard (chapter 2.3.5, eq. 2.10)
+	sec.Cwsi = cropWaterStressIndex(sec.KsWater, wx.tMean)
 
 	// --- 6. HealthTick ---
 	health := sec.HealthIndex
 	deltaDrought := alphaDrought * (1.0 - sec.KsWater)
 	deltaFlood := alphaFlood * (1.0 - sec.KsAeration)
 	deltaHeat := alphaHeat * (1.0 - ksT)
+	deltaPest := 0.0
+	if sec.PestActive {
+		deltaPest = alphaPest // sustained damage until the trainee treats the sector
+	}
 
 	rec := 0.0
-	if sec.KsWater > 0.9 && sec.KsAeration > 0.9 && ksT > 0.9 {
+	if sec.KsWater > 0.9 && sec.KsAeration > 0.9 && ksT > 0.9 && !sec.PestActive {
 		rec = betaRec * sec.KsWater * sec.KsAeration * (1.0 - health)
 	}
 
-	health = health - deltaDrought - deltaFlood - deltaHeat + rec
+	health = health - deltaDrought - deltaFlood - deltaHeat - deltaPest + rec
 	health = math.Max(0, math.Min(1.0, health))
 	sec.HealthIndex = health
 
 	// --- 7. EventTick: Monte Carlo random events ---
-	// pest attack — probability grows with GDD
-	pestProb := 0.02
-	if sec.GddCumulative > 700 {
-		pestProb = 0.04
-	}
-	if e.rng.Float64() < pestProb {
-		sec.HealthIndex = math.Max(0, sec.HealthIndex-0.05)
+	eventFired := wx.heatEvent || sec.KsAeration < 0.7 || sec.PestActive
+
+	// pest attack — probability grows with accumulated GDD; starts a persistent
+	// infestation that keeps draining health until the operator applies treatment.
+	if !sec.PestActive {
+		pestProb := cfg.PPestBase
+		if sec.GddCumulative > 700 {
+			pestProb *= 2.0
+		}
+		if rng.Float64() < pestProb {
+			sec.PestActive = true
+			sec.HealthIndex = math.Max(0, sec.HealthIndex-0.05) // initial bite
+			eventFired = true
+			e.notifyPest(ctx, sec)
+		}
 	}
 
-	// equipment failure — temporary water limit reduction (~2% per tick)
-	if e.rng.Float64() < 0.02 {
-		sec.DailyWaterLimit = math.Max(50, sec.DailyWaterLimit*0.6)
+	// equipment failure — restricts watering for the next 1–3 ticks
+	if sec.EquipmentLockedTicks == 0 && rng.Float64() < cfg.PEquipment {
+		sec.EquipmentLockedTicks = 1 + rng.Intn(3)
+		e.notifyEquipment(ctx, sec)
+		eventFired = true
 	}
 
 	// --- 8. StatusTick: state machine ---
@@ -220,6 +355,8 @@ func (e *Engine) simulateSector(ctx context.Context, sec *model.Sector) {
 		sec.Status = "dead"
 	case sec.HealthIndex < 0.3:
 		sec.Status = "critical"
+	case sec.PestActive:
+		sec.Status = "pest"
 	case sec.KsWater < 0.3:
 		sec.Status = "drought"
 	case sec.KsAeration < 0.5:
@@ -232,10 +369,17 @@ func (e *Engine) simulateSector(ctx context.Context, sec *model.Sector) {
 		sec.Status = "normal"
 	}
 
+	// --- scoring & badges (per sector, attributed to its operator) ---
+	res := e.scoreSector(sec, eventFired)
+
+	// alerts: emit only when the alert state changes, not every tick (no spam)
+	kind, message := alertFor(sec)
+	newAlert := kind != "" && kind != sec.LastAlertKind
+	sec.LastAlertKind = kind
+
 	sec.UpdatedAt = time.Now()
 	e.store.UpdateSector(ctx, sec)
 
-	// save telemetry point
 	tele := &model.Telemetry{
 		SectorID:     sec.ID,
 		SoilMoisture: sec.SoilMoisture,
@@ -245,9 +389,106 @@ func (e *Engine) simulateSector(ctx context.Context, sec *model.Sector) {
 	}
 	e.store.SaveTelemetry(ctx, tele)
 
-	// broadcast and check alerts
 	e.hub.Broadcast("sector:update", sec)
-	e.checkAlerts(ctx, sec)
+
+	if newAlert {
+		notif := &model.Notification{
+			SectorID: sec.ID,
+			UserID:   sec.OperatorID,
+			Kind:     kind,
+			Message:  message,
+		}
+		e.store.CreateNotification(ctx, notif)
+		e.hub.Broadcast("notification", notif)
+	}
+	return res
+}
+
+// scoreSector computes the per-tick score contribution and updates the streak
+// counters that drive badge awards (chapter 2.4.1–2.4.2).
+func (e *Engine) scoreSector(sec *model.Sector, eventFired bool) *scoreResult {
+	if sec.OperatorID == nil {
+		return nil
+	}
+
+	delta := 0.0
+	if sec.HealthIndex > 0.7 {
+		delta += 1.0
+	}
+	if sec.KsWater > 0.9 && sec.KsAeration > 0.9 {
+		delta += 0.5 // efficient, no-stress watering
+	}
+	if sec.KsWater < 0.3 {
+		delta -= 2.0 // allowed drought
+	}
+	if sec.KsAeration < 0.5 {
+		delta -= 2.0 // allowed waterlogging
+	}
+
+	var badges []string
+
+	// "Хранитель воды" — 7 simulated days without waterlogging
+	if sec.KsAeration > 0.9 {
+		sec.SafeStreak++
+		if sec.SafeStreak == badgeWaterKeeperDays {
+			badges = append(badges, "water_keeper")
+			delta += 5.0
+		}
+	} else if sec.KsAeration < 0.5 {
+		sec.SafeStreak = 0
+	}
+
+	// "Зелёный мастер" — H > 0.9 for 14 simulated days
+	if sec.HealthIndex > 0.9 {
+		sec.HealthyStreak++
+		if sec.HealthyStreak == badgeGreenMasterDays {
+			badges = append(badges, "green_master")
+			delta += 5.0
+		}
+	} else {
+		sec.HealthyStreak = 0
+	}
+
+	// "Кризис-менеджер" — survive 3 random events in a row keeping H healthy
+	if sec.HealthIndex < 0.3 {
+		sec.CrisisStreak = 0
+	} else if eventFired && sec.HealthIndex > 0.5 {
+		sec.CrisisStreak++
+		if sec.CrisisStreak == badgeCrisisManagerRun {
+			badges = append(badges, "crisis_manager")
+			delta += 5.0
+		}
+	}
+
+	return &scoreResult{
+		operatorID: *sec.OperatorID,
+		delta:      delta,
+		health:     sec.HealthIndex,
+		efficiency: sec.KsWater * sec.KsAeration,
+		badges:     badges,
+	}
+}
+
+func (e *Engine) notifyPest(ctx context.Context, sec *model.Sector) {
+	notif := &model.Notification{
+		SectorID: sec.ID,
+		UserID:   sec.OperatorID,
+		Kind:     "pest_attack",
+		Message:  "Нашествие вредителей на секторе " + sec.Name + ". Требуется обработка.",
+	}
+	e.store.CreateNotification(ctx, notif)
+	e.hub.Broadcast("notification", notif)
+}
+
+func (e *Engine) notifyEquipment(ctx context.Context, sec *model.Sector) {
+	notif := &model.Notification{
+		SectorID: sec.ID,
+		UserID:   sec.OperatorID,
+		Kind:     "equipment_failure",
+		Message:  "Поломка оборудования на секторе " + sec.Name + ". Полив недоступен на несколько тиков.",
+	}
+	e.store.CreateNotification(ctx, notif)
+	e.hub.Broadcast("notification", notif)
 }
 
 func kcbForPhase(code string) float64 {
@@ -269,35 +510,32 @@ func phaseForGDD(gdd float64) string {
 	return result
 }
 
-func (e *Engine) checkAlerts(ctx context.Context, sec *model.Sector) {
-	var kind, message string
-
+// alertFor returns the alert kind/message for a sector's current state, or empty
+// strings when the sector is fine. The caller emits a notification only when this
+// transitions to a new kind (see simulateSector), preventing per-tick spam.
+func alertFor(sec *model.Sector) (kind, message string) {
 	switch {
 	case sec.HealthIndex < 0.1:
-		kind = "plant_dead"
-		message = "Гибель растений на секторе " + sec.Name + ". Сектор требует пересадки."
+		return "plant_dead", "Гибель растений на секторе " + sec.Name + ". Сектор требует пересадки."
 	case sec.KsWater < 0.2:
-		kind = "critical_drought"
-		message = "Критическая засуха на секторе " + sec.Name + ". Требуется немедленный полив."
+		return "critical_drought", "Критическая засуха на секторе " + sec.Name + ". Требуется немедленный полив."
 	case sec.KsWater < 0.5:
-		kind = "drought_warning"
-		message = "Низкая влажность на секторе " + sec.Name + ". Рекомендуется полив."
+		return "drought_warning", "Низкая влажность на секторе " + sec.Name + ". Рекомендуется полив."
 	case sec.KsAeration < 0.5:
-		kind = "flood_warning"
-		message = "Переувлажнение на секторе " + sec.Name + ". Прекратите полив."
+		return "flood_warning", "Переувлажнение на секторе " + sec.Name + ". Прекратите полив."
 	case sec.HealthIndex < 0.3:
-		kind = "health_critical"
-		message = "Критический индекс здоровья на секторе " + sec.Name + "."
-	default:
-		return
+		return "health_critical", "Критический индекс здоровья на секторе " + sec.Name + "."
 	}
+	return "", ""
+}
 
-	notif := &model.Notification{
-		SectorID: sec.ID,
-		UserID:   sec.OperatorID,
-		Kind:     kind,
-		Message:  message,
+// genUUID returns a random RFC-4122 v4 UUID string for the training session.
+func genUUID() string {
+	b := make([]byte, 16)
+	if _, err := crand.Read(b); err != nil {
+		return "00000000-0000-4000-8000-000000000000"
 	}
-	e.store.CreateNotification(ctx, notif)
-	e.hub.Broadcast("notification", notif)
+	b[6] = (b[6] & 0x0f) | 0x40
+	b[8] = (b[8] & 0x3f) | 0x80
+	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }

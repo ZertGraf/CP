@@ -27,18 +27,29 @@ func main() {
 	store := storage.New(dsn)
 	hub := ws.NewHub()
 
+	// apply chapter-2 schema additions (training_scores, weather_configs, CWSI, streaks)
+	if err := store.EnsureSchema(context.Background()); err != nil {
+		log.Printf("warning: schema ensure failed: %v", err)
+	}
+
 	// seed test data if database is empty
 	if err := store.Seed(context.Background()); err != nil {
 		log.Printf("warning: seed failed: %v", err)
 	}
 
+	// fix any sectors where water_consumed > daily_water_limit (leftover from equipment-failure bug)
+	if err := store.FixWaterOverflow(context.Background()); err != nil {
+		log.Printf("warning: water overflow fix failed: %v", err)
+	}
+
 	authH := handler.NewAuthHandler(store, secret)
-	sectorH := handler.NewSectorHandler(store)
+	sectorH := handler.NewSectorHandler(store, hub)
 	plantH := handler.NewPlantHandler(store)
 	waterH := handler.NewWateringHandler(store, hub)
 	fileH := handler.NewFileHandler(store)
 	notifH := handler.NewNotificationHandler(store)
 	reportH := handler.NewReportHandler(store)
+	trainingH := handler.NewTrainingHandler(store)
 
 	// start simulation engine
 	ctx, cancel := context.WithCancel(context.Background())
@@ -53,7 +64,7 @@ func main() {
 	r.Use(chimw.Recoverer)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:*", "http://127.0.0.1:*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
 	}))
@@ -80,10 +91,19 @@ func main() {
 			r.Post("/api/sectors", sectorH.Create)
 			r.Put("/api/sectors/{id}", sectorH.Update)
 			r.Delete("/api/sectors/{id}", sectorH.Delete)
+			r.Patch("/api/sectors/{id}/override", sectorH.Override)
 			r.Put("/api/sectors/{id}/assign", sectorH.Assign)
 			r.Delete("/api/sectors/{id}/assign", sectorH.Unassign)
 			r.Get("/api/export/sectors", fileH.ExportSectors)
+			r.Get("/api/export/telemetry/{sectorId}", fileH.ExportTelemetry)
 			r.Post("/api/import/sectors", fileH.ImportSectors)
+
+			// weather generator / event probability tuning
+			r.Get("/api/weather-config", trainingH.GetWeatherConfig)
+			r.Put("/api/weather-config", trainingH.UpdateWeatherConfig)
+
+			// manual scoring: agronomist awards points/badges to an operator
+			r.Post("/api/training/{userId}/award", trainingH.Award)
 		})
 
 		// plants
@@ -95,6 +115,9 @@ func main() {
 		r.Post("/api/water", waterH.Water)
 		r.Get("/api/water/stats/{sectorId}", waterH.Stats)
 
+		// pest treatment (operator response to an infestation)
+		r.Post("/api/sectors/{id}/treat", waterH.Treat)
+
 		// notifications
 		r.Get("/api/notifications", notifH.List)
 		r.Put("/api/notifications/{id}/read", notifH.MarkRead)
@@ -102,6 +125,10 @@ func main() {
 		// reports & telemetry
 		r.Get("/api/telemetry/{sectorId}", reportH.Telemetry)
 		r.Get("/api/reports/{sectorId}", reportH.Summary)
+
+		// training analytics (gamification)
+		r.Get("/api/leaderboard", trainingH.Leaderboard)
+		r.Get("/api/score/my", trainingH.MyScore)
 	})
 
 	// graceful shutdown

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"time"
 
@@ -62,13 +63,28 @@ func (s *Storage) Seed(ctx context.Context) error {
 		log.Printf("seed: created operator %s (%s)", operators[i].Name, operators[i].Email)
 	}
 
+	const (
+		seedThetaFC = 70.0
+		seedThetaWP = 20.0
+		seedTaw     = 50.0
+	)
+
 	// create sectors and assign operators
 	sectors := make([]*model.Sector, len(sectorNames))
 	for i, name := range sectorNames {
 		area := 500 + rand.Float64()*2000
-		moisture := 30 + rand.Float64()*40
+		moisture := 45 + rand.Float64()*25 // 45–70%: always in healthy range
 		temp := 24 + rand.Float64()*6
-		health := 0.6 + rand.Float64()*0.4
+		health := 0.7 + rand.Float64()*0.3
+
+		// deficit consistent with field-capacity model
+		deficitDr := math.Max(0, seedTaw*(seedThetaFC-moisture)/(seedThetaFC-seedThetaWP))
+
+		// ks coefficients from initial deficit
+		ksWater := 1.0
+		if deficitDr > 0.5*seedTaw {
+			ksWater = math.Max(0, (seedTaw-deficitDr)/(0.5*seedTaw))
+		}
 
 		opID := operators[i%len(operators)].ID
 
@@ -82,14 +98,14 @@ func (s *Storage) Seed(ctx context.Context) error {
 			HealthIndex:     health,
 			GddCumulative:   rand.Float64() * 1000,
 			Phenophase:      "00",
-			KsWater:         1.0,
+			KsWater:         ksWater,
 			KsAeration:      1.0,
-			DeficitDr:       0,
+			DeficitDr:       float64(int(deficitDr*10)) / 10,
 			Status:          "normal",
 			OperatorID:      &opID,
 			LastWateredAt:   &now,
-			DailyWaterLimit: 300 + float64(rand.Intn(400)),
-			WaterConsumed:   float64(rand.Intn(150)),
+			DailyWaterLimit: 500,
+			WaterConsumed:   0,
 		}
 
 		if sector.SoilMoisture < 20 {

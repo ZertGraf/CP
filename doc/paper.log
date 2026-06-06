@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.4.2)  21 MAY 2026 17:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.4.2)  6 JUN 2026 12:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2091,12 +2091,12 @@ File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 
 {C:/Users/Zert/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/Zert/
 AppData/Roaming/MiKTeX/fonts/enc/dvips/tempora/t2a-tempora.enc}])
-<task.pdf, id=256, 597.50829pt x 845.0471pt>
+<task.pdf, id=264, 597.50829pt x 845.0471pt>
 File: task.pdf Graphic file (type pdf)
 <use task.pdf>
 Package pdftex.def Info: task.pdf  used on input line 22.
 (pdftex.def)             Requested size: 597.50682pt x 845.04504pt.
-<task.pdf, id=258, page=1, 597.50829pt x 845.0471pt>
+<task.pdf, id=266, page=1, 597.50829pt x 845.0471pt>
 File: task.pdf Graphic file (type pdf)
 <use task.pdf, page 1>
 Package pdftex.def Info: task.pdf , page1 used on input line 22.
@@ -2122,7 +2122,7 @@ Package pdftex.def Info: task.pdf , page1 used on input line 22.
 
 
  <./task.pdf>]
-<task.pdf, id=276, page=2, 597.50829pt x 845.0471pt>
+<task.pdf, id=284, page=2, 597.50829pt x 845.0471pt>
 File: task.pdf Graphic file (type pdf)
 <use task.pdf, page 2>
 Package pdftex.def Info: task.pdf , page2 used on input line 22.
@@ -2142,23 +2142,23 @@ Package pdftex.def Info: task.pdf , page2 used on input line 22.
 \tf@toc=\write4
 \openout4 = `paper.toc'.
 
- [5]
+ [5] [6]
 \openout2 = `intro.aux'.
 
  (intro.tex
 LaTeX Font Info:    Font shape `T2A/Tempora-TLF/m/it' will be
 (Font)              scaled to size 14.4pt on input line 7.
-) [6
+) [7
 
-] [7]
+] [8]
 \openout2 = `chapter1.aux'.
 
- (chapter1.tex [8
+ (chapter1.tex
+[9
 
 
 
-]
-[9] [10]
+] [10] [11]
 Overfull \hbox (1.93106pt too wide) in paragraph at lines 142--142
 []|\T2A/Tempora-TLF/b/n/14.4 (-20) Платформа| 
  []
@@ -2218,7 +2218,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 160--160
 \T2A/Tempora-TLF/b/n/14.4 (+20) опе-ра-то-
  []
 
-[11]
+[12]
 LaTeX Font Info:    Trying to load font information for T2A+cmtt on input line 
 203.
  (C:\Users\Zert\AppData\Roaming\MiKTeX\tex/latex/cyrillic\t2acmtt.fd
@@ -2235,14 +2235,14 @@ Overfull \hbox (49.33257pt too wide) in paragraph at lines 192--207
  (-20) (JavaScript/TypeScript)
  []
 
-[12] [13]
+[13] [14]
 Overfull \hbox (1.09572pt too wide) in paragraph at lines 267--273
 []\T2A/Tempora-TLF/m/n/14.4 (-20) Развјртывание при-ло-же-ния ре-а-ли-зо-ва-но 
 сред-ства-ми \T2A/Tempora-TLF/b/n/14.4 (-20) Docker Compose \T2A/Tempora-TLF/m/
 n/14.4 (-20) [[]47[],
  []
 
-[14]) [15]
+[15]) [16]
 \openout2 = `chapter2.aux'.
 
  (chapter2.tex
@@ -2256,52 +2256,52 @@ TLF.
 LaTeX Font Info:    Font shape `TS1/Tempora-TLF/m/n' will be
 (Font)              scaled to size 14.4pt on input line 19.
 
-[16
+[17
 
 
 
 {C:/Users/Zert/AppData/Roaming/MiKTeX/fonts/enc/dvips/tempora/tmp_ac5xuc.enc}]
-<images/UML.png, id=509, 2826.56pt x 1541.76pt>
+<images/UML.png, id=523, 2826.56pt x 1541.76pt>
 File: images/UML.png Graphic file (type png)
 <use images/UML.png>
 Package pdftex.def Info: images/UML.png  used on input line 60.
 (pdftex.def)             Requested size: 422.52057pt x 230.45416pt.
- [17 <./images/UML.png>]
+ [18 <./images/UML.png>]
 Overfull \hbox (3.87357pt too wide) in paragraph at lines 114--121
 []\T2A/Tempora-TLF/m/n/14.4 (-20) Объјм осад-ков во влаж-ный день мо-де-ли-ру-е
 т-ся че-рез гамма-распределение
  []
 
-[18] [19]
-<images/water_balance_scheme.png, id=562, 1541.76pt x 2762.32pt>
+[19] [20]
+<images/water_balance_scheme.png, id=576, 1541.76pt x 2762.32pt>
 File: images/water_balance_scheme.png Graphic file (type png)
 <use images/water_balance_scheme.png>
 Package pdftex.def Info: images/water_balance_scheme.png  used on input line 18
 9.
 (pdftex.def)             Requested size: 258.21019pt x 462.59137pt.
- [20 <./images/water_balance_scheme.png>]
+ [21 <./images/water_balance_scheme.png>]
 LaTeX Font Info:    Font shape `T2A/Tempora-TLF/m/n' will be
 (Font)              scaled to size 10.0pt on input line 217.
 LaTeX Font Info:    Font shape `T2A/Tempora-TLF/m/n' will be
 (Font)              scaled to size 7.0pt on input line 217.
- [21]
+ [22]
 Overfull \hbox (12.6364pt too wide) detected at line 279
 []
  []
 
-<images/state_machine.png, id=594, 2826.56pt x 1541.76pt>
+<images/state_machine.png, id=608, 2826.56pt x 1541.76pt>
 File: images/state_machine.png Graphic file (type png)
 <use images/state_machine.png>
 Package pdftex.def Info: images/state_machine.png  used on input line 298.
 (pdftex.def)             Requested size: 422.52057pt x 230.45416pt.
-[22] [23 <./images/state_machine.png>] [24] [25]
-<images/tick_pipeline.png, id=657, 2826.56pt x 1541.76pt>
+[23] [24 <./images/state_machine.png>] [25] [26]
+<images/tick_pipeline.png, id=671, 2826.56pt x 1541.76pt>
 File: images/tick_pipeline.png Graphic file (type png)
 <use images/tick_pipeline.png>
 Package pdftex.def Info: images/tick_pipeline.png  used on input line 445.
 (pdftex.def)             Requested size: 469.47049pt x 256.07324pt.
- [26 <./images/tick_pipeline.png>]
-<images/er_diagram.png, id=670, 2826.56pt x 1541.76pt>
+ [27 <./images/tick_pipeline.png>]
+<images/er_diagram.png, id=684, 2826.56pt x 1541.76pt>
 File: images/er_diagram.png Graphic file (type png)
 <use images/er_diagram.png>
 Package pdftex.def Info: images/er_diagram.png  used on input line 482.
@@ -2358,7 +2358,7 @@ Overfull \hbox (37.8872pt too wide) in alignment at lines 504--524
  []
 
 
-ignored: Infinite glue shrinkage found in box being split [27 <./images/er_diagram.png>]
+ignored: Infinite glue shrinkage found in box being split [28 <./images/er_diagram.png>]
 
 Overfull \hbox (24.4872pt too wide) in paragraph at lines 526--534
 \T2A/Tempora-TLF/m/n/14.4 (-20) по-ля-ми: \T2A/cmtt/m/n/14.4 user_id\T2A/Tempor
@@ -2368,27 +2368,27 @@ t/m/n/14.4 badges \T2A/Tempora-TLF/m/n/14.4 (-20) (мас-сив JSONB), \T2A/cmtt/m/
 n/14.4 avg_health\T2A/Tempora-TLF/m/n/14.4 (-20) ,
  []
 
-[28]
-<images/wireframe_operator.png, id=685, 2633.84pt x 1638.12pt>
+[29]
+<images/wireframe_operator.png, id=699, 2633.84pt x 1638.12pt>
 File: images/wireframe_operator.png Graphic file (type png)
 <use images/wireframe_operator.png>
 Package pdftex.def Info: images/wireframe_operator.png  used on input line 560.
 
 (pdftex.def)             Requested size: 469.47049pt x 291.97438pt.
-<images/wireframe_agronomist.png, id=687, 2826.56pt x 1541.76pt>
+<images/wireframe_agronomist.png, id=701, 2826.56pt x 1541.76pt>
 File: images/wireframe_agronomist.png Graphic file (type png)
 <use images/wireframe_agronomist.png>
 Package pdftex.def Info: images/wireframe_agronomist.png  used on input line 57
 7.
 (pdftex.def)             Requested size: 469.47049pt x 256.07324pt.
- [29 <./images/wireframe_operator.png>]
-<images/wireframe_watering.png, id=696, 2633.84pt x 1638.12pt>
+ [30 <./images/wireframe_operator.png>]
+<images/wireframe_watering.png, id=710, 2633.84pt x 1638.12pt>
 File: images/wireframe_watering.png Graphic file (type png)
 <use images/wireframe_watering.png>
 Package pdftex.def Info: images/wireframe_watering.png  used on input line 597.
 
 (pdftex.def)             Requested size: 469.47049pt x 291.97438pt.
-) [30 <./images/wireframe_agronomist.png>] [31 <./images/wireframe_watering.png
+) [31 <./images/wireframe_agronomist.png>] [32 <./images/wireframe_watering.png
 >]
 \openout2 = `chapter3.aux'.
 
@@ -2396,93 +2396,123 @@ Package pdftex.def Info: images/wireframe_watering.png  used on input line 597.
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
 nput line 15.
 
-Overfull \hbox (0.89317pt too wide) in paragraph at lines 41--53
+Overfull \hbox (0.89317pt too wide) in paragraph at lines 43--56
 \T2A/Tempora-TLF/m/n/14.4 (-20) объ-еди-ня-ю-ще-го три сер-ви-са. Сер-вис \T2A/
 cmtt/m/n/14.4 db \T2A/Tempora-TLF/m/n/14.4 (-20) ис-поль-зу-ет об-раз \T2A/cmtt
 /m/n/14.4 postgres:16-alpine\T2A/Tempora-TLF/m/n/14.4 (-20) ,
  []
 
-[32
+[33
 
 
 
-] [33] [34]
-Overfull \hbox (19.09947pt too wide) in paragraph at lines 149--151
+] [34] [35]
+Overfull \hbox (19.09947pt too wide) in paragraph at lines 168--170
 []\T2A/Tempora-TLF/b/n/14.4 (-20) Публичные \T2A/Tempora-TLF/m/n/14.4 (-20) ---
  ре-ги-стра-ция и аутен-ти-фи-ка-ция (\T2A/cmtt/m/n/14.4 POST /api/auth/registe
 r\T2A/Tempora-TLF/m/n/14.4 (-20) ,
  []
 
-
-Underfull \hbox (badness 1715) in paragraph at lines 221--221
+[36]
+Underfull \hbox (badness 1715) in paragraph at lines 253--253
 []|\T2A/Tempora-TLF/m/n/14.4 (+20) Экспорт сек-то-ров в
  []
 
-[35]
-ignored: Infinite glue shrinkage found in box being split [36] [37] [38]
-Overfull \hbox (12.92204pt too wide) in paragraph at lines 316--319
-[]\T2A/Tempora-TLF/b/n/14.4 (-20) ET0Tick \T2A/Tempora-TLF/m/n/14.4 (-20) --- р
-ас-чјт эта-лон-ной эва-по-транс-пи-ра-ции по урав-не-нию Харгривса--
+
+Underfull \hbox (badness 3291) in paragraph at lines 254--254
+[]|\T2A/Tempora-TLF/m/n/14.4 (+20) Экспорт те-ле-мет-рии
  []
 
 
-Overfull \hbox (9.43112pt too wide) in paragraph at lines 326--330
+Underfull \hbox (badness 10000) in paragraph at lines 260--260
+[]|\T2A/Tempora-TLF/m/n/14.4 (+20) Ручное на-чис-ле-ние
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 260--260
+\T2A/Tempora-TLF/m/n/14.4 (+20) бал-лов и бей-джей
+ []
+
+
+ignored: Infinite glue shrinkage found in box being split [37]
+ignored: Infinite glue shrinkage fo
+und in box being split [38] [39] [40] [41]
+Overfull \hbox (9.43112pt too wide) in paragraph at lines 386--393
 \T2A/Tempora-TLF/m/n/14.4 (-20) (фор-му-ла ([]7[])) и пе-ре-клю-че-ние фе-но-фа
--зы по рас-ши-рен-ной шка-ле BBCH [[]64[]]. 
+-зы по рас-ши-рен-ной шка-ле BBCH [[]64[]].
  []
 
-[39] [40] [41] [42]
-Underfull \hbox (badness 10000) in paragraph at lines 554--554
+[42] [43] [44] [45] [46]
+Underfull \hbox (badness 10000) in paragraph at lines 668--668
 []|\T2A/Tempora-TLF/m/n/14.4 (+20) Агрегированные KPI по
  []
 
 
-Underfull \hbox (badness 2818) in paragraph at lines 554--554
+Underfull \hbox (badness 2818) in paragraph at lines 668--668
 \T2A/Tempora-TLF/m/n/14.4 (+20) сек-то-ру, гра-фи-ки влаж-но-
  []
 
 
-ignored: Infinite glue shrinkage found in box being split [43] [44] [45]
-Overfull \hbox (8.41362pt too wide) in paragraph at lines 669--672
+Underfull \hbox (badness 3168) in paragraph at lines 668--668
+\T2A/Tempora-TLF/m/n/14.4 (+20) порт XLSX и на-строй-ка
+ []
+
+
+ignored: Infinite glue shrinkage found in box being split [47]
+ignored: Infinite glue shrinkage fo
+und in box being split [48] [49] [50] [51]
+Overfull \hbox (90.18065pt too wide) in paragraph at lines 826--829
+[]\T2A/Tempora-TLF/m/n/14.4 (-20) Проверка до-ступ-но-сти обо-ру-до-ва-ния: при
+ ак-тив-ной по-лом-ке (\T2A/cmtt/m/n/14.4 equipment_locked_ticks
+ []
+
+
+Overfull \hbox (8.41362pt too wide) in paragraph at lines 829--832
 []\T2A/Tempora-TLF/m/n/14.4 (-20) Проверка су-точ-но-го ли-ми-та: ес-ли $[] \OT
 1/cmr/m/n/14.4 + \OML/cmm/m/it/14.4 V > []$\T2A/Tempora-TLF/m/n/14.4 (-20) ,
  []
 
-
-Overfull \hbox (5.25468pt too wide) in paragraph at lines 678--680
+[52]
+Overfull \hbox (5.25468pt too wide) in paragraph at lines 841--843
 []\T2A/Tempora-TLF/m/n/14.4 (-20) Широковещательная рас-сыл-ка со-бы-тия \T2A/c
 mtt/m/n/14.4 sector:watered \T2A/Tempora-TLF/m/n/14.4 (-20) че-рез WebSocket. 
  []
 
-[46]
-Overfull \hbox (13.53241pt too wide) in paragraph at lines 690--692
+
+Overfull \hbox (13.53241pt too wide) in paragraph at lines 860--862
 []\T2A/Tempora-TLF/m/n/14.4 (-20) Кнопку <<По-лить сек-тор>> с ани-ма-ци-ей на-
 жа-тия (\T2A/cmtt/m/n/14.4 transform: scale(0.98)\T2A/Tempora-TLF/m/n/14.4 (-20
 ) ). 
  []
 
-[47]
-Overfull \hbox (74.75731pt too wide) in paragraph at lines 748--754
+[53] [54]
+Overfull \hbox (72.78453pt too wide) in paragraph at lines 934--951
 []\T2A/Tempora-TLF/m/n/14.4 (-20) Импорт осу-ществ-ля-ет-ся че-рез \T2A/cmtt/m/
 n/14.4 multipart/form-data \T2A/Tempora-TLF/m/n/14.4 (-20) (\T2A/cmtt/m/n/14.4 
-POST /api/import/sectors\T2A/Tempora-TLF/m/n/14.4 (-20) ).
+POST /api/import/sectors\T2A/Tempora-TLF/m/n/14.4 (-20) )
  []
 
 
-Overfull \hbox (116.25992pt too wide) in paragraph at lines 755--760
+Overfull \hbox (116.25992pt too wide) in paragraph at lines 952--957
 []\T2A/Tempora-TLF/m/n/14.4 (-20) На кли-ен-те им-порт ре-а-ли-зо-ван че-рез ск
 ры-тый эле-мент \T2A/cmtt/m/n/14.4 <input type="file"accept=".csvї\T2A/Tempora-
 TLF/m/n/14.4 (-20) ,
  []
 
-[48]) [49] [50]
+[55] [56]) [57]
 \openout2 = `conclusion.aux'.
 
- (conclusion.tex [51
+ (conclusion.tex [58
 
 
 
-]) [52] (paper.bbl
+]
+Overfull \hbox (4.47589pt too wide) in paragraph at lines 42--46
+[]\T2A/Tempora-TLF/b/n/14.4 (-20) Доступ к ис-ход-но-му ко-ду. \T2A/Tempora-TLF
+/m/n/14.4 (-20) Ис-ход-ный код раз-ра-бо-тан-но-го веб-приложения
+ []
+
+) [59] (paper.bbl
 Underfull \hbox (badness 2126) in paragraph at lines 63--72
 \T2A/Tempora-TLF/m/n/14.4 (+20) simulation [Text] / D. P. Holzworth, N. I. Huth
 , P. G. deVoil
@@ -2494,7 +2524,7 @@ Underfull \hbox (badness 4291) in paragraph at lines 83--89
 урс] [Text]. ^^V
  []
 
-[53
+[60
 
 
 ]
@@ -2515,7 +2545,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 100--105
  / / thespoon . tech /
  []
 
-[54]
+[61]
 Underfull \hbox (badness 1490) in paragraph at lines 193--202
 \T2A/Tempora-TLF/m/n/14.4 (+20) [et al.] // []Smart Agricultural Technology[]. 
 ^^V  2024. ^^V  Vol. 9. ^^V
@@ -2527,7 +2557,7 @@ Underfull \hbox (badness 1286) in paragraph at lines 193--202
 cedirect . com / science / article / pii /
  []
 
-[55]
+[62]
 Underfull \hbox (badness 1152) in paragraph at lines 234--240
 []\T2A/Tempora-TLF/m/n/14.4 (+20) SolidTech. Senso --- AI Smart and Gamified Pl
 ant Sensor [Элек-
@@ -2557,7 +2587,7 @@ Overfull \hbox (29.23701pt too wide) in paragraph at lines 243--248
 []help-[]you-[]keep-[]your-[]plants-[]alive-[]172000982 .
  []
 
-[56]
+[63]
 Underfull \hbox (badness 10000) in paragraph at lines 310--316
 []\T2A/Tempora-TLF/m/n/14.4 (+20) Gorilla WebSocket Authors. websocket package 
 ---
@@ -2575,13 +2605,13 @@ Underfull \hbox (badness 4036) in paragraph at lines 310--316
 я: 15.04.2026. URL:
  []
 
-[57]
+[64]
 Underfull \hbox (badness 1028) in paragraph at lines 434--442
 []\T2A/Tempora-TLF/m/n/14.4 (+20) Shen, C. Gamification in workforce training: 
 Improving employees'
  []
 
-[58] [59] [60] [61]
+[65] [66] [67] [68]
 Underfull \hbox (badness 1033) in paragraph at lines 714--724
 \T2A/Tempora-TLF/m/n/14.4 (+20) of agricultural crop yield under environmental 
 uncertainty [Text] /
@@ -2611,7 +2641,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 765--770
  / / www . getgud . io / blog /
  []
 
-[62]
+[69]
 Underfull \hbox (badness 10000) in paragraph at lines 814--823
 []\T2A/Tempora-TLF/m/n/14.4 (+20) Росстандарт. ГОСТ 7.32--2017 СИ-БИД. От-чјт о
  научно-
@@ -2629,21 +2659,31 @@ Underfull \hbox (badness 1112) in paragraph at lines 814--823
  ^^V  2017. ^^V  При-каз
  []
 
-) [63] (paper.aux (title.aux) (intro.aux) (chapter1.aux) (chapter2.aux)
+) [70] (paper.aux (title.aux) (intro.aux) (chapter1.aux) (chapter2.aux)
 (chapter3.aux) (conclusion.aux))
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
-Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: 50079EFB66764FF12C797DFC03CAFA2F;19771.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `paper.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `paper.out':
+(rerunfilecheck)             Before: 2086F8B6CD7292BBCBDE416FD33EBF94;20414
+(rerunfilecheck)             After:  2D3E9B7BD6599D96ED326AE198308236;20414.
  ) 
 Here is how much of TeX's memory you used:
- 25428 strings out of 467867
- 414533 string characters out of 5428405
- 1102206 words of memory out of 5000000
- 53163 multiletter control sequences out of 15000+600000
- 683275 words of font info for 169 fonts, out of 8000000 for 9000
+ 25480 strings out of 467867
+ 415268 string characters out of 5428405
+ 1260206 words of memory out of 5000000
+ 53165 multiletter control sequences out of 15000+600000
+ 684031 words of font info for 172 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  90i,19n,131p,1004b,2888s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\Zert\AppData\Local\MiKTeX\fonts/pk/ljfour/lh/lh-t2a/dpi600\latt120
@@ -2657,9 +2697,9 @@ mex10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C
 les/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX/fo
 nts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX/fonts/type1/pub
 lic/amsfonts/cm/cmsy10.pfb>
-Output written on paper.pdf (63 pages, 26024740 bytes).
+Output written on paper.pdf (70 pages, 26058864 bytes).
 PDF statistics:
- 1657 PDF objects out of 1728 (max. 8388607)
- 534 named destinations out of 1000 (max. 500000)
- 31789 words of extra memory for PDF output out of 35830 (max. 10000000)
+ 1749 PDF objects out of 2073 (max. 8388607)
+ 578 named destinations out of 1000 (max. 500000)
+ 31805 words of extra memory for PDF output out of 35830 (max. 10000000)
 

@@ -12,6 +12,7 @@ services:
       - pg_data:/var/lib/postgresql/data
       - ./plantation-api/migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql
       - ./plantation-api/migrations/002_simulation.sql:/docker-entrypoint-initdb.d/002_simulation.sql
+      - ./plantation-api/migrations/003_gamification.sql:/docker-entrypoint-initdb.d/003_gamification.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s

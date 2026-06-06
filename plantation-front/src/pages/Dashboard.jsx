@@ -1,9 +1,17 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
+import { api } from '../api'
 import { ICONS } from '../components/icons'
 import { Sparkline, LineChart } from '../components/visuals'
-import { classNames, fmtTimeAgo, resolveStatus, STATUS_LABEL } from '../lib/format'
+import { classNames, fmtTimeAgo, resolveStatus, STATUS_LABEL, badgeMeta, shortOperatorId } from '../lib/format'
 
 export default function Dashboard({ sectors, telemetry, plants, onSelectSector, onOpenNotifs }) {
+    const [board, setBoard] = useState([])
+    useEffect(() => {
+        let alive = true
+        api.getLeaderboard().then(rows => { if (alive) setBoard(rows || []) }).catch(() => {})
+        return () => { alive = false }
+    }, [])
+    const maxScore = Math.max(1, ...board.map(b => b.total_score || 0))
     const totalPlants = plants.length
     const totalArea = Math.round(sectors.reduce((a, s) => a + (s.area_sqm || 0), 0))
     const avgMoist = sectors.length ? sectors.reduce((a, s) => a + (s.soil_moisture || 0), 0) / sectors.length : 0
@@ -15,7 +23,7 @@ export default function Dashboard({ sectors, telemetry, plants, onSelectSector, 
     const alerts = useMemo(() => {
         return sectors
             .map(s => ({ ...s, status: resolveStatus(s) }))
-            .filter(s => s.status === 'drought' || s.status === 'overwatered' || s.status === 'warn')
+            .filter(s => ['drought', 'overwatered', 'warn', 'dead', 'critical', 'heat_stress', 'recovering'].includes(s.status))
     }, [sectors])
 
     const firstId = sectors[0]?.id
@@ -128,6 +136,40 @@ export default function Dashboard({ sectors, telemetry, plants, onSelectSector, 
                         })}
                     </div>
                 </div>
+            </div>
+
+            {/* leaderboard (chapter 2.4.4 / agronomist dashboard wireframe 2.7.2) */}
+            <div className="section-head">
+                <h2 className="section-title">Таблица лидеров</h2>
+                <span className="section-meta">обучающая аналитика</span>
+            </div>
+            <div className="card">
+                {board.length === 0 ? (
+                    <div className="empty">Баллы ещё не накоплены — движок начисляет их по мере работы операторов.</div>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {board.slice(0, 5).map((b, i) => (
+                            <div key={b.user_id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <span className="mono" style={{ width: 24, fontWeight: 700, color: i === 0 ? 'var(--brand)' : 'var(--ink-3)' }}>
+                                    {i === 0 ? '🏆' : i + 1}
+                                </span>
+                                <span style={{ width: 200, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {b.name || `Оператор #${shortOperatorId(b.user_id)}`}
+                                </span>
+                                <div className="progress" style={{ flex: 1 }}>
+                                    <span style={{ width: `${Math.max(2, (b.total_score / maxScore) * 100)}%`, background: 'var(--brand)' }} />
+                                </div>
+                                <span className="mono tnum" style={{ width: 48, textAlign: 'right', fontWeight: 700 }}>{Math.round(b.total_score)}</span>
+                                <span style={{ display: 'flex', gap: 4 }}>
+                                    {(b.badges || []).map(code => {
+                                        const m = badgeMeta(code)
+                                        return <span key={code} title={`${m.ru} — ${m.hint}`}>{m.icon}</span>
+                                    })}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <div className="section-head">

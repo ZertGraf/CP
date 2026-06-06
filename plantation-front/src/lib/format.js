@@ -29,6 +29,7 @@ export const STATUS_LABEL = {
     drought:     { ru: 'Засуха',           chip: 'chip-danger' },
     overwatered: { ru: 'Переувлажнено',    chip: 'chip-info' },
     heat_stress: { ru: 'Тепловой стресс',  chip: 'chip-warn' },
+    pest:        { ru: 'Вредители',        chip: 'chip-warn' },
     critical:    { ru: 'Критическое',      chip: 'chip-danger' },
     recovering:  { ru: 'Восстановление',   chip: 'chip-good' },
     dead:        { ru: 'Гибель',           chip: 'chip-danger' },
@@ -42,11 +43,24 @@ export function shortOperatorId(id) {
 
 export function notifKindLabel(kind) {
     switch (kind) {
-        case 'critical_drought': return 'Критическая засуха'
-        case 'drought_warning':  return 'Низкая влажность'
-        case 'flood_warning':    return 'Переувлажнение'
-        case 'health_critical':  return 'Критическое здоровье'
-        case 'plant_dead':       return 'Гибель растений'
+        case 'critical_drought':  return 'Критическая засуха'
+        case 'drought_warning':   return 'Низкая влажность'
+        case 'flood_warning':     return 'Переувлажнение'
+        case 'health_critical':   return 'Критическое здоровье'
+        case 'plant_dead':        return 'Гибель растений'
+        case 'equipment_failure': return 'Поломка оборудования'
+        case 'pest_attack':       return 'Нашествие вредителей'
         default: return kind
     }
+}
+
+// achievement badges (chapter 2.4.2)
+export const BADGE_META = {
+    water_keeper:   { icon: '💧', ru: 'Хранитель воды',  hint: '7 дней без переувлажнения' },
+    green_master:   { icon: '🌿', ru: 'Зелёный мастер',  hint: 'индекс здоровья > 0.9 в течение 14 дней' },
+    crisis_manager: { icon: '🛡️', ru: 'Кризис-менеджер', hint: '3 случайных события подряд пройдены без потерь' },
+}
+
+export function badgeMeta(code) {
+    return BADGE_META[code] || { icon: '🏅', ru: code, hint: '' }
 }

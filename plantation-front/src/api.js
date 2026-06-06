@@ -18,6 +18,18 @@ async function request(path, options = {}) {
     }
 
     const res = await fetch(`${BASE}${path}`, { ...options, headers })
+
+    // stale/expired session (we sent a token but the server rejected it, e.g. the
+    // user was reseeded out of the DB) → clear it and bounce back to login.
+    if (res.status === 401 && token) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('role')
+        localStorage.removeItem('name')
+        localStorage.removeItem('id')
+        window.location.reload()
+        return
+    }
+
     if (res.status === 204) return null
     const data = await res.json()
     if (!res.ok) throw new Error(data.error || 'request failed')
@@ -39,6 +51,7 @@ export const api = {
     createSector: (data) => request('/sectors', { method: 'POST', body: JSON.stringify(data) }),
     updateSector: (id, data) => request(`/sectors/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     deleteSector: (id) => request(`/sectors/${id}`, { method: 'DELETE' }),
+    overrideSector: (id, data) => request(`/sectors/${id}/override`, { method: 'PATCH', body: JSON.stringify(data) }),
 
     // operator assignment
     assignOperator: (sectorId, operatorId) =>
@@ -55,6 +68,7 @@ export const api = {
     water: (sectorId, volume) =>
         request('/water', { method: 'POST', body: JSON.stringify({ sector_id: sectorId, volume_liters: volume }) }),
     getWaterStats: (sectorId) => request(`/water/stats/${sectorId}`),
+    treat: (sectorId) => request(`/sectors/${sectorId}/treat`, { method: 'POST' }),
 
     // notifications
     getNotifications: (unreadOnly = false) =>
@@ -67,10 +81,26 @@ export const api = {
         request(`/telemetry/${sectorId}?limit=${limit}`),
     getReport: (sectorId) => request(`/reports/${sectorId}`),
 
+    // training analytics (gamification)
+    getLeaderboard: () => request('/leaderboard'),
+    getMyScore: () => request('/score/my'),
+    awardScore: (userId, data) =>
+        request(`/training/${userId}/award`, { method: 'POST', body: JSON.stringify(data) }),
+
+    // weather generator / event probability config (agronomist)
+    getWeatherConfig: () => request('/weather-config'),
+    updateWeatherConfig: (data) => request('/weather-config', { method: 'PUT', body: JSON.stringify(data) }),
+
     // file import/export
     exportSectors: () => {
         const token = getToken()
         return fetch(`${BASE}/export/sectors`, {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(r => r.blob())
+    },
+    exportTelemetry: (sectorId) => {
+        const token = getToken()
+        return fetch(`${BASE}/export/telemetry/${sectorId}`, {
             headers: { Authorization: `Bearer ${token}` }
         }).then(r => r.blob())
     },

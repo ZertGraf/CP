@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Sectors from './pages/Sectors'
+import Watering from './pages/Watering'
 import Plants from './pages/Plants'
 import Reports from './pages/Reports'
 import Operators from './pages/Operators'
@@ -9,6 +10,19 @@ import NotifDrawer from './pages/Notifications'
 import Shell from './components/Shell'
 import { ICONS } from './components/icons'
 import { api, connectWS } from './api'
+
+// fallback: pull the user UUID from the JWT `sub` claim for sessions
+// created before the id was persisted to localStorage.
+function userIdFromToken() {
+  const t = localStorage.getItem('token')
+  if (!t) return ''
+  try {
+    const b64 = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    return JSON.parse(atob(b64)).sub || ''
+  } catch {
+    return ''
+  }
+}
 
 function Toast({ toast, onDismiss }) {
   useEffect(() => {
@@ -37,9 +51,11 @@ export default function App() {
   const [selectedSectorId, setSelectedSectorId] = useState(null)
   const [toast, setToast] = useState(null)
   const [wsConnected, setWsConnected] = useState(false)
+  const [wsEvents, setWsEvents] = useState([])
   const pendingTelemetry = useRef({})
 
   const user = {
+    id: localStorage.getItem('id') || userIdFromToken(),
     role: localStorage.getItem('role') || 'operator',
     name: localStorage.getItem('name') || 'Гость',
   }
@@ -82,6 +98,7 @@ export default function App() {
   useEffect(() => {
     if (!loggedIn) return
     const disconnect = connectWS(msg => {
+      setWsEvents(prev => [msg, ...prev].slice(0, 20))
       if (msg.event === 'sector:update' && msg.data) {
         setSectors(prev => prev.map(s => s.id === msg.data.id ? msg.data : s))
         // push to telemetry buffer
@@ -118,6 +135,7 @@ export default function App() {
     localStorage.removeItem('token')
     localStorage.removeItem('role')
     localStorage.removeItem('name')
+    localStorage.removeItem('id')
     setLoggedIn(false)
   }
 
@@ -170,6 +188,9 @@ export default function App() {
                   setSelectedId={setSelectedSectorId}
                   onToast={showToast} />
           )}
+          {page === 'watering' && (
+              <Watering wsEvents={wsEvents} />
+          )}
           {page === 'plants' && (
               <Plants sectors={sectors} onToast={showToast} />
           )}
@@ -177,7 +198,7 @@ export default function App() {
               <Reports sectors={sectors} />
           )}
           {page === 'operators' && user.role === 'agronomist' && (
-              <Operators sectors={sectors} />
+              <Operators sectors={sectors} onToast={showToast} />
           )}
         </Shell>
 

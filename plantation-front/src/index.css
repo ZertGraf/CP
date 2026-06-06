@@ -163,6 +163,19 @@ input, select, textarea { font: inherit; color: inherit; }
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+.user-chip .user-uuid {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 3px; padding: 0;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-3); letter-spacing: 0.02em;
+}
+.user-chip .user-uuid b {
+  font-weight: 600; opacity: 0.6;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.user-chip .user-uuid:hover { color: var(--brand); }
+.user-chip .user-uuid:hover b { opacity: 1; color: var(--brand); }
 
 /* sidebar */
 .sidebar {
@@ -395,9 +408,13 @@ input, select, textarea { font: inherit; color: inherit; }
   position: absolute; left: 0; top: 0; bottom: 0;
   width: 4px; background: var(--good);
 }
-.sector-tile.drought .status-bar { background: var(--danger); }
+.sector-tile.drought .status-bar    { background: var(--danger); }
 .sector-tile.overwatered .status-bar { background: var(--info); }
-.sector-tile.warn .status-bar { background: var(--warn); }
+.sector-tile.warn .status-bar       { background: var(--warn); }
+.sector-tile.dead .status-bar       { background: #5a1a1a; }
+.sector-tile.critical .status-bar   { background: var(--danger); }
+.sector-tile.heat_stress .status-bar { background: var(--warn); }
+.sector-tile.recovering .status-bar { background: color-mix(in srgb, var(--good) 50%, var(--warn)); }
 
 .sector-tile-head {
   display: flex; justify-content: space-between;
@@ -483,6 +500,23 @@ input, select, textarea { font: inherit; color: inherit; }
 .map-cell.warn {
   background: color-mix(in srgb, var(--warn) 28%, var(--bg-elev));
   border-color: color-mix(in srgb, var(--warn) 55%, transparent);
+}
+.map-cell.dead {
+  background: color-mix(in srgb, #8b0000 45%, var(--bg-elev));
+  border-color: #8b0000;
+  opacity: 0.8;
+}
+.map-cell.critical {
+  background: color-mix(in srgb, var(--danger) 38%, var(--bg-elev));
+  border-color: color-mix(in srgb, var(--danger) 70%, transparent);
+}
+.map-cell.heat_stress {
+  background: color-mix(in srgb, var(--warn) 38%, var(--bg-elev));
+  border-color: color-mix(in srgb, var(--warn) 70%, transparent);
+}
+.map-cell.recovering {
+  background: color-mix(in srgb, var(--good) 18%, var(--bg-elev));
+  border-color: color-mix(in srgb, var(--good) 38%, transparent);
 }
 .map-cell-name { font-weight: 600; font-size: 12px; margin: 0; }
 .map-cell-num { font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
@@ -633,6 +667,26 @@ input, select, textarea { font: inherit; color: inherit; }
 .toast-close { color: var(--ink-4); padding: 2px; border-radius: 4px; display: grid; place-items: center; }
 .toast-close:hover { color: var(--ink); background: var(--bg-sunken); }
 .toast-close svg { width: 14px; height: 14px; }
+
+/* modal */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 80;
+  animation: fadeIn 160ms ease;
+}
+.modal-box {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-3);
+  padding: 24px;
+  min-width: 340px;
+  max-width: 480px;
+  width: 100%;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* login */
 .login-wrap { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); }

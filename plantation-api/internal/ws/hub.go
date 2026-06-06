@@ -16,6 +16,7 @@ var upgrader = websocket.Upgrader{
 type Hub struct {
 	mu      sync.RWMutex
 	clients map[*websocket.Conn]bool
+	writeMu sync.Mutex // serialises writes — gorilla forbids concurrent writes to one conn
 }
 
 func NewHub() *Hub {
@@ -49,7 +50,9 @@ func (h *Hub) HandleConnect(w http.ResponseWriter, r *http.Request) {
 	}()
 }
 
-// broadcast sends a json message to all connected clients
+// broadcast sends a json message to all connected clients. Safe to call from many
+// goroutines at once (the simulation fans sectors out across goroutines): writes are
+// serialised through writeMu so a single connection is never written concurrently.
 func (h *Hub) Broadcast(event string, data any) {
 	msg, err := json.Marshal(map[string]any{
 		"event": event,
@@ -59,13 +62,23 @@ func (h *Hub) Broadcast(event string, data any) {
 		return
 	}
 
+	// snapshot the client set without holding the map lock during network I/O
 	h.mu.RLock()
-	defer h.mu.RUnlock()
-
+	conns := make([]*websocket.Conn, 0, len(h.clients))
 	for conn := range h.clients {
+		conns = append(conns, conn)
+	}
+	h.mu.RUnlock()
+
+	h.writeMu.Lock()
+	defer h.writeMu.Unlock()
+
+	for _, conn := range conns {
 		if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
 			conn.Close()
+			h.mu.Lock()
 			delete(h.clients, conn)
+			h.mu.Unlock()
 		}
 	}
 }

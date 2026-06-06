@@ -9,11 +9,40 @@ export default function Reports({ sectors }) {
     const [report, setReport] = useState(null)
     const [tel, setTel] = useState([])
     const [loading, setLoading] = useState(false)
+    const [cfg, setCfg] = useState(null)
+    const [cfgSaving, setCfgSaving] = useState(false)
+
+    const isAgro = localStorage.getItem('role') === 'agronomist'
 
     useEffect(() => {
         if (!sectors.length) return
         if (!selId || !sectors.find(s => s.id === selId)) setSelId(sectors[0].id)
     }, [sectors])
+
+    useEffect(() => {
+        if (isAgro) api.getWeatherConfig().then(setCfg).catch(() => {})
+    }, [isAgro])
+
+    async function handleExportXlsx() {
+        if (!selId) return
+        try {
+            const blob = await api.exportTelemetry(selId)
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url; a.download = `telemetry_${selId}.xlsx`; a.click()
+            URL.revokeObjectURL(url)
+        } catch { /* ignore */ }
+    }
+
+    async function saveCfg(patch) {
+        setCfgSaving(true)
+        try {
+            const updated = await api.updateWeatherConfig(patch)
+            setCfg(updated)
+        } catch { /* ignore */ } finally {
+            setCfgSaving(false)
+        }
+    }
 
     useEffect(() => {
         if (!selId) return
@@ -38,6 +67,11 @@ export default function Reports({ sectors }) {
                     <select className="select" value={selId} onChange={e => setSelId(e.target.value)} style={{ width: 260 }}>
                         {sectors.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
+                    {isAgro && (
+                        <button className="btn" onClick={handleExportXlsx} title="Выгрузить телеметрию сектора в XLSX">
+                            {ICONS.download} Экспорт XLSX
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -113,6 +147,56 @@ export default function Reports({ sectors }) {
                         </div>
                     </div>
                 </>
+            )}
+
+            {isAgro && cfg && (
+                <div className="card" style={{ marginTop: 16 }}>
+                    <div className="section-head" style={{ margin: 0 }}>
+                        <h2 className="section-title">Генератор погоды и вероятности событий</h2>
+                        <span className="section-meta">профиль: {cfg.name}</span>
+                    </div>
+                    <p className="page-subtitle" style={{ marginTop: 8 }}>
+                        Параметры цепи Маркова, гамма-распределения осадков и метода эвапотранспирации.
+                        Изменения применяются к следующему тику симуляции.
+                    </p>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 12, marginTop: 12 }}>
+                        {[
+                            { k: 'p_dry_to_wet', label: 'P(сухой→влажный)', step: 0.01 },
+                            { k: 'p_wet_to_wet', label: 'P(влажный→влажный)', step: 0.01 },
+                            { k: 'gamma_shape',  label: 'Гамма: форма α', step: 0.1 },
+                            { k: 'gamma_scale',  label: 'Гамма: масштаб β', step: 0.5 },
+                            { k: 'p_heat',       label: 'P(аномальная жара)', step: 0.01 },
+                            { k: 'p_pest_base',  label: 'P(вредители, база)', step: 0.01 },
+                            { k: 'p_equipment',  label: 'P(поломка оборуд.)', step: 0.01 },
+                            { k: 'latitude',     label: 'Широта, °', step: 0.5 },
+                        ].map(({ k, label, step }) => (
+                            <div key={k}>
+                                <div className="field-label" style={{ marginBottom: 4 }}>{label}</div>
+                                <input className="input" type="number" step={step} value={cfg[k]}
+                                       onChange={e => setCfg({ ...cfg, [k]: parseFloat(e.target.value) })} />
+                            </div>
+                        ))}
+                        <div>
+                            <div className="field-label" style={{ marginBottom: 4 }}>Метод ET₀</div>
+                            <select className="select" value={cfg.et_method}
+                                    onChange={e => setCfg({ ...cfg, et_method: e.target.value })} style={{ width: '100%' }}>
+                                <option value="hargreaves">Харгривс-Самани</option>
+                                <option value="penman">Пенман-Монтейс (FAO-56)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button className="btn btn-primary" style={{ marginTop: 14 }}
+                            disabled={cfgSaving}
+                            onClick={() => saveCfg({
+                                p_dry_to_wet: cfg.p_dry_to_wet, p_wet_to_wet: cfg.p_wet_to_wet,
+                                gamma_shape: cfg.gamma_shape, gamma_scale: cfg.gamma_scale,
+                                p_heat: cfg.p_heat, p_pest_base: cfg.p_pest_base,
+                                p_equipment: cfg.p_equipment, latitude: cfg.latitude,
+                                et_method: cfg.et_method,
+                            })}>
+                        {cfgSaving ? 'Сохраняю...' : 'Применить параметры'}
+                    </button>
+                </div>
             )}
         </div>
     )

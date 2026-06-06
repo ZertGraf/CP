@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ICONS } from './icons'
 import { classNames } from '../lib/format'
 
@@ -5,11 +6,20 @@ export default function Shell({
                                   user, page, setPage, onLogout,
                                   notifCount, onOpenNotifs, sectorsCount, plantsCount, wsConnected, children,
                               }) {
+    const [copied, setCopied] = useState(false)
+
+    function copyId() {
+        if (!user.id) return
+        try { navigator.clipboard?.writeText(user.id) } catch {}
+        setCopied(true)
+        setTimeout(() => setCopied(false), 1500)
+    }
     const nav = [
-        { id: 'dashboard', label: 'Обзор',    icon: ICONS.grid,   count: null },
-        { id: 'sectors',   label: 'Секторы',  icon: ICONS.leaf,   count: sectorsCount ?? null },
-        { id: 'plants',    label: 'Растения', icon: ICONS.plants, count: plantsCount ?? null },
-        { id: 'reports',   label: 'Отчёты',   icon: ICONS.chart,  count: null },
+        { id: 'dashboard', label: 'Обзор',    icon: ICONS.grid,    count: null },
+        { id: 'sectors',   label: 'Секторы',  icon: ICONS.leaf,    count: sectorsCount ?? null },
+        { id: 'watering',  label: 'Полив',    icon: ICONS.droplet, count: null },
+        { id: 'plants',    label: 'Растения', icon: ICONS.plants,  count: plantsCount ?? null },
+        { id: 'reports',   label: 'Отчёты',   icon: ICONS.chart,   count: null },
     ]
     const adminNav = [
         { id: 'operators', label: 'Операторы', icon: ICONS.user, count: null },
@@ -17,6 +27,7 @@ export default function Shell({
     const titles = {
         dashboard: 'Обзор плантации',
         sectors: 'Секторы',
+        watering: 'Пульт полива',
         plants: 'Растения',
         reports: 'Отчёты и телеметрия',
         operators: 'Операторы',
@@ -54,6 +65,14 @@ export default function Shell({
                         <div style={{ lineHeight: 1.1 }}>
                             <div style={{ fontSize: 13, fontWeight: 500 }}>{user.name}</div>
                             <div className="role">{isAgro ? 'Агроном' : 'Оператор'}</div>
+                            {user.id && (
+                                <button type="button" className="user-uuid"
+                                        onClick={copyId}
+                                        title="Скопировать UUID для назначения оператора">
+                                    <b>UUID</b>
+                                    <span>{copied ? 'скопировано ✓' : user.id}</span>
+                                </button>
+                            )}
                         </div>
                         <button className="icon-btn" onClick={onLogout} title="Выход" style={{ width: 28, height: 28 }}>
                             {ICONS.logout}
