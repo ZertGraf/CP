@@ -1,18 +1,19 @@
 services:
   db:
     image: postgres:16-alpine
+    container_name: cp-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: plantation
-    ports:
-      - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./plantation-api/migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql
       - ./plantation-api/migrations/002_simulation.sql:/docker-entrypoint-initdb.d/002_simulation.sql
       - ./plantation-api/migrations/003_gamification.sql:/docker-entrypoint-initdb.d/003_gamification.sql
+    networks:
+      - cp_internal
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -21,24 +22,32 @@ services:
 
   api:
     build: ./plantation-api
+    container_name: cp-api
     restart: unless-stopped
-    ports:
-      - "8080:8080"
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/plantation?sslmode=disable
-      JWT_SECRET: change-me-in-production
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/plantation?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       PORT: "8080"
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - cp_internal
+      - caddy_default
 
   front:
     build: ./plantation-front
+    container_name: cp-front
     restart: unless-stopped
-    ports:
-      - "5173:5173"
     depends_on:
       - api
+    networks:
+      - caddy_default
+
+networks:
+  caddy_default:
+    external: true
+  cp_internal:
 
 volumes:
   pg_data:

@@ -1,5 +1,6 @@
 const BASE = '/api'
-const WS_BASE = `ws://${window.location.host}/ws`
+// Use wss:// on HTTPS pages so the browser doesn't block mixed (insecure ws) content.
+const WS_BASE = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws`
 
 function getToken() {
     return localStorage.getItem('token')
