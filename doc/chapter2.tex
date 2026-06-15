@@ -111,7 +111,7 @@
 	\item $P_{00} = 1 - P_{01}$, $P_{10} = 1 - P_{11}$.
 \end{where}
 
-Объём осадков во влажный день моделируется через гамма-распределение
+Объём осадков во влажный день моделируется через гамма-рас\-пре\-де\-ле\-ние
 $\Gamma(\alpha, \beta)$ с параметрами формы $\alpha$ и масштаба
 $\beta$, откалиброванными по климатическим данным региона
 (Гватемала, тропический пояс). Суточные значения максимальной
@@ -269,10 +269,10 @@ BBCH~\cite{wei2013_litchi_bbch}: разрыв почек $\to$ развитие
 \begin{equation}
 	\begin{split}
 		H(t+1) = \text{clamp}_{[0,\,1]}\!\Big(
-		H(t) & - \alpha_{drought} \cdot (1 - K_s)
-		- \alpha_{flood} \cdot (1 - K_{s,aer}) \\
-		& - \alpha_{heat} \cdot (1 - K_{s,T})
-		+ \beta_{rec} \cdot K_s \cdot K_{s,aer} \cdot (1 - H(t))
+		H(t) & - \alpha_{drought} \cdot (1 - K_s) \\
+		& - \alpha_{flood} \cdot (1 - K_{s,aer})
+		- \alpha_{heat} \cdot (1 - K_{s,T}) \\
+		& + \beta_{rec} \cdot K_s \cdot K_{s,aer} \cdot (1 - H(t))
 		\Big),
 	\end{split}
 	\label{eq:health_index}
@@ -486,7 +486,7 @@ EventTick $\to$ ScoringTick. Такая цепочка обеспечивает
 
 Структура таблицы секторов плантации представлена в табл.~\ref{tab:db_sectors}.
 
-\begin{longtable}{|l|l|p{3.5cm}|p{5.5cm}|}
+\begin{longtable}{|I{3.0cm}|p{3.5cm}|R{3.0cm}|R{4.8cm}|}
 	\caption{Структура таблицы секторов (\texttt{sectors})} \label{tab:db_sectors}           \\
 
 	\hline

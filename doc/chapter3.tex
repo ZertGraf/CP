@@ -826,9 +826,9 @@ export function PlantVisual({ moisture, health,
     \item Проверка доступности оборудования: при активной
     поломке (\texttt{equipment\_locked\_ticks} $> 0$) полив
     отклоняется с кодом HTTP~409 (Conflict).
-    \item Проверка суточного лимита: если
-    $\text{water\_consumed} + V > \text{daily\_water\_limit}$,
-    возвращается ошибка.
+    \item Проверка суточного лимита: если объём
+    \(\text{water\_consumed} + V\) превышает
+    \(\text{daily\_water\_limit}\), возвращается ошибка.
     \item Запись в журнал полива (\texttt{watering\_logs}).
     \item Пересчёт дефицита влаги: $D_r = D_r - V$, где
     объём полива $V$ (в литрах) учитывается как эквивалентный

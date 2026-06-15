@@ -31,6 +31,45 @@
 \RequirePackage[hidelinks, unicode, psdextra]{hyperref} % Кликабельное оглавление (без рамок)
 \urlstyle{same} % Ссылки тем же шрифтом, что и текст
 
+% --- ПЕРЕНОСЫ В ССЫЛКАХ И ИНЛАЙН-КОДЕ ---
+
+% Разрешаем разрывать длинные \url{...} по разделителям, чтобы они
+% не вылезали за правое поле.
+\Urlmuskip=0mu plus 1mu\relax
+\def\UrlBreaks{\do\/\do\.\do\-\do\_\do\?\do\=\do\&\do\#\do\:\do\@}
+
+% Моноширинный шрифт в \texttt{...} запрещает переносы, поэтому длинные
+% идентификаторы (equipment_locked_ticks) и пути (/api/sectors/{id}/treat)
+% не помещаются в строку и вылезают за поле. Разрешаем разрыв строки
+% (без дефиса) после разделителей _ / - : ; внутри \texttt.
+\makeatletter
+\protected\def\ttbreak@us{\textunderscore\penalty\z@}
+\begingroup
+	\catcode`\/=\active \catcode`\-=\active
+	\catcode`\:=\active \catcode`\;=\active
+	\catcode`\(=\active
+	\gdef\ttbreak@chars{%
+		\ifcsname shorthandoff\endcsname\shorthandoff{"}\fi % babel: вернуть " обычный catcode (иначе теряются пробелы в коде)
+		\catcode`\/=\active \catcode`\-=\active
+		\catcode`\:=\active \catcode`\;=\active
+		\catcode`\(=\active
+		\def/{\char`\/\penalty\z@}%
+		\def-{\char`\-\penalty\z@}%
+		\def:{\char`\:\penalty\z@}%
+		\def;{\char`\;\penalty\z@}%
+		\def({\char`\(\penalty\z@}%
+		\let\_\ttbreak@us
+	}%
+\endgroup
+\let\ttbreak@orig\texttt
+\protected\def\texttt{\begingroup\ttbreak@chars\ttbreak@grab}
+\protected\def\ttbreak@grab#1{\ttbreak@orig{#1}\endgroup}
+\makeatother
+
+% Подстраховка: в крайнем случае слегка растянуть строку, лишь бы текст
+% не выходил за поле (вместо переполнения hbox).
+\setlength{\emergencystretch}{2em}
+
 % --- НАСТРОЙКА ЗАГОЛОВКОВ ---
 
 \RequirePackage{titlesec}
@@ -103,6 +142,18 @@
 \RequirePackage{array, booktabs, multirow, tabularx}
 \RequirePackage{longtable} % Для многостраничных таблиц
 \RequirePackage{pdflscape} % Для альбомных страниц (поворачивает страницу в PDF)
+
+% --- Пользовательские типы колонок ---
+
+% R{ширина} --- абзацная колонка с выключкой влево (ragged right). В узких
+% ячейках убирает разреженные межсловные пробелы, которые даёт justify.
+\newcolumntype{R}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% I{ширина} --- колонка для идентификаторов (имён полей/таблиц БД). Выключка
+% влево + разрешённый перенос после подчёркивания, чтобы длинные имена
+% (например daily_water_limit) переносились внутри ячейки, а не выходили за неё.
+\protected\def\dbusbreak{\textunderscore\discretionary{}{}{}}
+\newcolumntype{I}[1]{>{\raggedright\arraybackslash\let\_\dbusbreak}p{#1}}
 
 \graphicspath{{images/}} % Папка для картинок
 
